@@ -231,7 +231,10 @@ class VoiceCalculator {
             this.statusIndicator.classList.add('listening');
         } else {
             this.micBtn.classList.remove('listening');
-            this.statusIndicator.textContent = '點擊麥克風';
+            this.statusIndicator.textContent = '系統已更新 (準備就緒)';
+            setTimeout(() => {
+                this.updateUIState(false);
+            }, 2000);
             this.statusIndicator.classList.remove('listening');
             this.hideTranscript();
         }
