@@ -94,13 +94,13 @@ class VoiceCalculator {
                 if (interimTranscript) {
                     this.showTranscript(interimTranscript);
 
-                    // Force finalize if stuck in interim state for > 1.2s
+                    // Force finalize if stuck in interim state for > 1.0s (User requested faster response)
                     this.forceFinalizeTimer = setTimeout(() => {
                         console.log("Force Finalizing:", interimTranscript);
                         this.processSpeechInput(interimTranscript);
                         // Abort to reset the speech buffer, it will auto-restart via onend
                         if (this.isListening) this.recognition.abort();
-                    }, 1200);
+                    }, 1000);
                 }
             };
 
@@ -201,9 +201,12 @@ class VoiceCalculator {
 
     processSpeechInput(text) {
         let cleanText = text.trim();
-        // Fix logic for "10,000" where comma breaks parsing
-        // Remove commas that are between digits
-        cleanText = cleanText.replace(/(\d),(\d)/g, '$1$2');
+        // Robust comma handling: Remove ALL commas.
+        // "10,000" -> "10000" (Correct)
+        // "100, 200" -> "100 200" (Correct, space remains)
+        // "100,200" -> "100200" (Edge case: merged, but rare in speech output)
+        cleanText = cleanText.replace(/,/g, '');
+
         if (!cleanText) return;
 
         if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
@@ -215,7 +218,8 @@ class VoiceCalculator {
             return;
         }
 
-        const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.]+/);
+        // Split by common separators including Japanese comma
+        const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.、]+/);
 
         let addedCount = 0;
         tokens.forEach(token => {
@@ -233,6 +237,8 @@ class VoiceCalculator {
 
         if (addedCount > 0) {
             this.render();
+            // Tactile feedback for add
+            if (navigator.vibrate) navigator.vibrate(50);
         }
     }
 
