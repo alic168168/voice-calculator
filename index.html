@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Voice Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>語音計算機</h1>
+            <div id="status-indicator" class="status-badge">就緒</div>
+        </header>
+
+        <main class="calc-list-container" id="entries-list">
+            <div class="empty-state">
+                <p>請按下方按鈕開始說話<br>例如：「100 200 50」</p>
+                <div class="commands-hint">
+                    <span>指令：</span>
+                    <span class="chip">刪除</span>
+                    <span class="chip">總共多少</span>
+                </div>
+            </div>
+            <!-- Entries will be injected here -->
+        </main>
+
+        <footer class="app-controls">
+            <div class="total-display-area" id="total-area">
+                <div class="total-label">總計 (0 筆)</div>
+                <div class="total-amount" id="total-amount">0</div>
+            </div>
+            
+            <button id="mic-btn" class="mic-button" aria-label="開始聆聽">
+                <div class="mic-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </div>
+                <div class="ripple-ring"></div>
+                <div class="ripple-ring delay-1"></div>
+            </button>
+        </footer>
+    </div>
+    
+    <!-- Modal for "總共多少" Summary -->
+    <div id="summary-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">結算總覽</h2>
+            <div class="summary-details">
+                <div class="summary-row">
+                    <span>筆數</span>
+                    <span id="modal-count">0</span>
+                </div>
+                <div class="summary-row total">
+                    <span>總金額</span>
+                    <span id="modal-total">0</span>
+                </div>
+            </div>
+            <button id="close-modal-btn" class="primary-btn">確認</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
