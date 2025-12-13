@@ -254,7 +254,7 @@ class VoiceCalculator {
     isCommand(text) {
         if (!text) return false;
         const lower = text.toLowerCase();
-        return text.includes('清除') || text.includes('全清') || text.includes('歸零') ||
+        return text.includes('清除') || text.includes('全清') || text.includes('歸零') || text.includes('清楚') || text.includes('歸0') ||
             text.includes('總共') || text.includes('多少') || text.includes('結算') || text.includes('買單') || text.includes('此單') ||
             text.includes('刪除') || lower.includes('delete');
     }
