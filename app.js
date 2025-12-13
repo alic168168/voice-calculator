@@ -356,11 +356,13 @@ class VoiceCalculator {
             return;
         }
 
-        this.entries.forEach((entry, index) => {
+        // Render in reverse order (Newest at Top)
+        [...this.entries].reverse().forEach((entry, index) => {
+            const displayIndex = this.entries.length - index;
             const el = document.createElement('div');
             el.className = 'entry-item';
             el.innerHTML = `
-                <span class="entry-index">#${index + 1}</span>
+                <span class="entry-index">#${displayIndex}</span>
                 <span class="entry-value">${entry.value.toLocaleString()}</span>
                 <button class="delete-btn" aria-label="刪除">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -372,7 +374,7 @@ class VoiceCalculator {
             });
             this.entriesList.appendChild(el);
         });
-        this.entriesList.scrollTop = this.entriesList.scrollHeight;
+        // Removed scrollTop scroll to bottom since we are now newest-at-top
     }
 }
 
