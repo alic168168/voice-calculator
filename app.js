@@ -94,13 +94,13 @@ class VoiceCalculator {
                 if (interimTranscript) {
                     this.showTranscript(interimTranscript);
 
-                    // Force finalize if stuck in interim state for > 0.5s (Rapid fire mode)
+                    // Force finalize if stuck in interim state for > 0.3s (Ultra rapid mode)
                     this.forceFinalizeTimer = setTimeout(() => {
                         console.log("Force Finalizing:", interimTranscript);
                         this.processSpeechInput(interimTranscript);
                         // Abort to reset the speech buffer, it will auto-restart via onend
                         if (this.isListening) this.recognition.abort();
-                    }, 500);
+                    }, 300);
                 }
             };
 
@@ -243,41 +243,71 @@ class VoiceCalculator {
     }
 
     parseNumber(str) {
-        const floatVal = parseFloat(str);
-        if (!isNaN(floatVal) && !/[零一二兩三四五六七八九十百千萬]/.test(str)) {
-            return floatVal;
+        // Quick pass for pure numbers
+        const floatCheck = parseFloat(str);
+        if (!isNaN(floatCheck) && !/[零一二兩三四五六七八九十百千萬]/.test(str)) {
+            return floatCheck;
         }
 
         const map = {
             '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
             '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
-            '百': 100, '千': 1000, '萬': 10000,
-            '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9
+            '百': 100, '千': 1000, '萬': 10000
+            // Digits handled dynamically
         };
 
         let val = 0;
         let bucket = 0;
-        let lastUnit = 1;
+        let currentDigitStr = ''; // Buffer for "5000" in "5000萬"
 
         for (let i = 0; i < str.length; i++) {
             const char = str[i];
+
+            // If digit, accumulate
+            if (/[0-9\.]/.test(char)) {
+                currentDigitStr += char;
+                continue;
+            }
+
+            // If we hit a non-digit, verify previous digits
+            if (currentDigitStr) {
+                bucket = parseFloat(currentDigitStr);
+                currentDigitStr = '';
+            }
+
             const num = map[char];
             if (num === undefined) continue;
 
             if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
-                if (bucket === 0 && char === '十') bucket = 1;
-                val += bucket * num;
-                bucket = 0;
-                lastUnit = num;
+                // Unit (十, 百, 千, 萬)
+                if (bucket === 0 && char === '十') bucket = 1; // Handle "十" => 10
+
+                // Special case for 萬: it multiplies the entire previous sum if < 10000? 
+                // Traditional: "一千五百萬" = (1000 + 500) * 10000.
+                // Our loop adds to `val` eagerly. 
+                // Simple logic: val += bucket * unit.
+                // But for "萬", we might need to multiply `val`? 
+                // E.g. "一千萬": bucket=1, unit=1000, val=1000. Next unit '萬'.
+                // If we just do bucket=0... 
+
+                // Robust simplified logic for dictation:
+                if (num === 10000) {
+                    val = (val + bucket) * 10000;
+                    bucket = 0;
+                } else {
+                    val += bucket * num;
+                    bucket = 0;
+                }
             } else {
                 bucket = num;
             }
         }
 
-        if (bucket > 0) {
-            if (lastUnit > 10) val += bucket * (lastUnit / 10);
-            else val += bucket;
+        // Final flush
+        if (currentDigitStr) {
+            bucket = parseFloat(currentDigitStr);
         }
+        val += bucket;
 
         return val === 0 ? NaN : val;
     }
