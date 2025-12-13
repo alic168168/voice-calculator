@@ -260,7 +260,11 @@ class VoiceCalculator {
             this.deleteLastEntry();
             return;
         }
-        if (cleanText.includes('總共') || cleanText.includes('多少') || cleanText.includes('結算') || cleanText.includes('買單')) {
+        if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零')) {
+            this.clearAllEntries();
+            return;
+        }
+        if (cleanText.includes('總共') || cleanText.includes('多少') || cleanText.includes('結算') || cleanText.includes('買單') || cleanText.includes('此單')) {
             this.showSummary();
             return;
         }
@@ -356,6 +360,17 @@ class VoiceCalculator {
             const removed = this.entries.pop();
             this.render();
             this.showTranscript(`已刪除 ${removed.value}`);
+        } else {
+            this.showTranscript('無資料');
+        }
+    }
+
+    clearAllEntries() {
+        if (this.entries.length > 0) {
+            this.entries = [];
+            this.render();
+            this.showTranscript('已全部清空');
+            if (navigator.vibrate) navigator.vibrate([50, 50]);
         } else {
             this.showTranscript('無資料');
         }
