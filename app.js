@@ -33,7 +33,13 @@ class VoiceCalculator {
 
         this.initSpeechRecognition();
         this.initListeners();
+        this.initListeners();
         this.render();
+
+        // Force verification
+        setTimeout(() => {
+            alert('系統更新成功！v3');
+        }, 1000);
     }
 
     resetInactivityTimer() {
