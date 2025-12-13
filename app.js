@@ -33,7 +33,22 @@ class VoiceCalculator {
 
         this.initSpeechRecognition();
         this.initListeners();
+
+        // Debug Console Setup
+        this.debugEl = document.getElementById('debug-console');
+        this.debugEl.style.display = 'block'; // Enable debug
+        this.log("Debug Mode Started");
+
         this.render();
+    }
+
+    log(msg) {
+        if (!this.debugEl) return;
+        const line = document.createElement('div');
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        this.debugEl.appendChild(line);
+        this.debugEl.scrollTop = this.debugEl.scrollHeight;
+        console.log(msg);
     }
 
     resetInactivityTimer() {
