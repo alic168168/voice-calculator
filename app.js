@@ -94,13 +94,14 @@ class VoiceCalculator {
                 if (interimTranscript) {
                     this.showTranscript(interimTranscript);
 
-                    // Force finalize if stuck in interim state for > 0.3s (Ultra rapid mode)
+                    // Force finalize if stuck in interim state for > 0.6s (Balanced mode)
+                    // 0.3s was too fast and cut off "Yi...Bai" (1...00) -> 1
                     this.forceFinalizeTimer = setTimeout(() => {
                         console.log("Force Finalizing:", interimTranscript);
                         this.processSpeechInput(interimTranscript);
                         // Abort to reset the speech buffer, it will auto-restart via onend
                         if (this.isListening) this.recognition.abort();
-                    }, 300);
+                    }, 600);
                 }
             };
 
