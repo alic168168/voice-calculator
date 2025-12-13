@@ -219,6 +219,17 @@ class VoiceCalculator {
             return;
         }
 
+        // Feature: Multiplier "3個300" -> "300 300 300"
+        // Regex looks for: (Quantity) [Space?] 個 [Space?] (Amount)
+        cleanText = cleanText.replace(/([0-9零一二兩三四五六七八九十]+)\s*[個个]\s*([0-9零一二兩三四五六七八九十百千萬]+)/g, (match, qtyStr, amountStr) => {
+            const qty = this.parseNumber(qtyStr);
+            // Safety limit: max 50 items at once to prevent browser hang
+            if (!isNaN(qty) && qty > 0 && qty <= 50) {
+                return Array(qty).fill(amountStr).join(' ');
+            }
+            return match;
+        });
+
         // Split by common separators including Japanese comma
         const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.、]+/);
 
