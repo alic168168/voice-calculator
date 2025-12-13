@@ -116,12 +116,12 @@ class VoiceCalculator {
                 if (interimTranscript) {
                     this.showTranscript(interimTranscript);
 
-                    // Force finalize if stuck in interim state for > 0.6s (Balanced mode)
+                    // Force finalize if stuck in interim state for > 0.6s
                     this.forceFinalizeTimer = setTimeout(() => {
                         console.log("Force Finalizing:", interimTranscript);
-                        this.processSpeechInput(interimTranscript);
-                        // Abort to reset the speech buffer, it will auto-restart via onend
-                        if (this.isListening) this.recognition.abort();
+                        // Do NOT process here. stop() will trigger the final result event naturally.
+                        // Using abort() was causing data loss for trailing numbers.
+                        if (this.isListening) this.recognition.stop();
                     }, 600);
                 }
             };
