@@ -120,10 +120,15 @@ class VoiceCalculator {
                     // If the user says a command, execute it immediately without waiting for finalization.
                     if (this.isCommand(interimTranscript)) {
                         console.log("Eager Command Triggered:", interimTranscript);
+                        this.showTranscript(`(指令觸發) ${interimTranscript}`); // Visual Feedback
                         this.processSpeechInput(interimTranscript);
-                        this.recognition.abort(); // Reset immediately
+
+                        // Small delay before aborting to ensure UI updates are seen
+                        setTimeout(() => this.recognition.abort(), 100);
                         return;
                     }
+
+                    // Force finalize if stuck in interim state for > 0.2s (Extreme speed)
 
                     // Force finalize if stuck in interim state for > 0.2s (Extreme speed)
                     this.forceFinalizeTimer = setTimeout(() => {
