@@ -15,7 +15,7 @@ class VoiceCalculator {
 
         // DOM Elements
         this.statusIndicator = document.getElementById('status-indicator');
-        this.settingsBtn = document.getElementById('btn-settings'); // New Settings Button
+        this.settingsBtn = document.getElementById('btn-settings');
         this.entriesList = document.getElementById('entries-list');
         this.totalAmountEl = document.getElementById('total-amount');
         this.totalAreaLabel = document.querySelector('.total-label');
@@ -33,24 +33,7 @@ class VoiceCalculator {
 
         this.initSpeechRecognition();
         this.initListeners();
-
-        // Debug Console Setup
-        this.debugEl = document.getElementById('debug-console');
-        if (this.debugEl) {
-            this.debugEl.style.display = 'block'; // Enable debug
-            this.log("Debug Mode Started");
-        }
-
         this.render();
-    }
-
-    log(msg) {
-        if (!this.debugEl) return;
-        const line = document.createElement('div');
-        line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        this.debugEl.appendChild(line);
-        this.debugEl.scrollTop = this.debugEl.scrollHeight;
-        console.log(msg);
     }
 
     resetInactivityTimer() {
@@ -59,7 +42,7 @@ class VoiceCalculator {
         if (this.isListening) {
             const ms = this.autoStopMinutes * 60 * 1000;
             this.inactivityTimer = setTimeout(() => {
-                this.log('Inactivity timeout reached.');
+                console.log('Inactivity timeout reached.');
                 this.isListening = false;
                 this.recognition.stop();
                 this.updateUIState(false);
@@ -75,15 +58,13 @@ class VoiceCalculator {
             this.recognition = new SpeechRecognition();
 
             // Continuous=true for smoother session. 
-            // We handle "end" events by restarting.
             this.recognition.continuous = true;
             this.recognition.lang = 'cmn-Hant-TW';
             this.recognition.interimResults = true;
             this.recognition.maxAlternatives = 1;
 
             this.recognition.onstart = () => {
-                this.log('Voice Service: Started');
-                // Only update UI to listening if we intended to listen
+                console.log('Voice Service: Started');
                 if (this.isListening) {
                     this.updateUIState(true);
                     if (navigator.vibrate) navigator.vibrate(50);
@@ -92,10 +73,10 @@ class VoiceCalculator {
             };
 
             this.recognition.onend = () => {
-                this.log('Voice Service: Ended');
+                console.log('Voice Service: Ended');
                 // Vital: If we are supposed to be listening, restart immediately.
                 if (this.isListening) {
-                    this.log('Voice Service: Auto-restarting...');
+                    console.log('Voice Service: Auto-restarting...');
 
                     clearTimeout(this.restartTimer);
                     this.restartTimer = setTimeout(() => {
@@ -104,14 +85,14 @@ class VoiceCalculator {
                         } catch (e) {
                             console.error("Restart failed", e);
                         }
-                    }, 50); // Minimized delay for continuous input
+                    }, 50);
                 } else {
                     this.updateUIState(false);
                 }
             };
 
             this.recognition.onresult = (event) => {
-                this.resetInactivityTimer(); // Reset timer on speech
+                this.resetInactivityTimer();
                 clearTimeout(this.forceFinalizeTimer);
 
                 let finalTranscript = '';
@@ -136,8 +117,7 @@ class VoiceCalculator {
                     // Eager Command Execution:
                     // If the user says a command, execute it immediately without waiting for finalization.
                     if (this.isCommand(interimTranscript)) {
-                        this.log(`Eager Command Triggered: ${interimTranscript}`);
-                        this.showTranscript(`(指令觸發) ${interimTranscript}`); // Visual Feedback
+                        console.log(`Eager Command Triggered: ${interimTranscript}`);
                         this.processSpeechInput(interimTranscript);
 
                         // Small delay before aborting to ensure UI updates are seen
@@ -147,19 +127,16 @@ class VoiceCalculator {
 
                     // Force finalize if stuck in interim state for > 0.2s (Extreme speed)
                     this.forceFinalizeTimer = setTimeout(() => {
-                        this.log(`Force Finalizing: ${interimTranscript}`);
-                        // Do NOT process here. stop() will trigger the final result event naturally.
+                        console.log(`Force Finalizing: ${interimTranscript}`);
                         if (this.isListening) this.recognition.stop();
                     }, 200);
                 }
             };
 
             this.recognition.onerror = (event) => {
-                this.log(`Voice Service Error: ${event.error}`);
+                console.log(`Voice Service Error: ${event.error}`);
 
-                // Benign errors: 'no-speech' (silence), 'aborted' (manual stop or restart), 'network' (transient)
                 if (['no-speech', 'aborted', 'network'].includes(event.error)) {
-                    // Ignore these, let onend handle the restart
                     return;
                 }
 
@@ -168,9 +145,7 @@ class VoiceCalculator {
                     this.updateUIState(false);
                     alert('無法存取麥克風。請確認：\n1. 網址開頭是 https\n2. 已允許瀏覽器使用麥克風');
                 } else {
-                    // Show other errors but try to keep listening if possible
                     this.statusIndicator.textContent = '錯誤: ' + event.error;
-                    // We don't stop isListening here, we let onend try to restart.
                 }
             };
         } else {
@@ -187,23 +162,18 @@ class VoiceCalculator {
             const autoStopSelect = document.getElementById('auto-stop-select');
 
             this.settingsBtn.addEventListener('click', () => {
-                // Open modal
                 settingsModal.classList.remove('hidden');
                 autoStopSelect.value = this.autoStopMinutes;
             });
 
             saveSettingsBtn.addEventListener('click', () => {
-                // Save and close
                 const val = parseInt(autoStopSelect.value);
                 this.autoStopMinutes = val;
                 settingsModal.classList.add('hidden');
-
-                // Feedback
                 this.showTranscript(`已設定: ${val} 分鐘`);
                 if (this.isListening) this.resetInactivityTimer();
             });
 
-            // Close on click outside
             settingsModal.addEventListener('click', (e) => {
                 if (e.target === settingsModal) settingsModal.classList.add('hidden');
             });
@@ -217,13 +187,11 @@ class VoiceCalculator {
                 this.isListening = false;
                 this.recognition.stop();
                 this.updateUIState(false);
-                if (this.inactivityTimer) clearTimeout(this.inactivityTimer); // Clear timer
+                if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
             } else {
                 // User wants to START
                 this.isListening = true;
                 this.statusIndicator.textContent = '啟動中...';
-
-                // Force reset any existing instance
                 try { this.recognition.abort(); } catch (e) { }
 
                 setTimeout(() => {
@@ -242,7 +210,6 @@ class VoiceCalculator {
         this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
         this.btnSummary.addEventListener('click', () => this.showSummary());
 
-        // Fixed: Use consistent clearAllEntries method
         this.btnClear.addEventListener('click', () => {
             if (this.entries.length > 0 && confirm('確定清空所有數字？')) {
                 this.clearAllEntries();
@@ -292,27 +259,22 @@ class VoiceCalculator {
     processSpeechInput(text) {
         let cleanText = text.trim();
         cleanText = cleanText.replace(/,/g, '');
-        this.log(`Process Input: "${text}" => Cleaned: "${cleanText}"`);
-
         if (!cleanText) return;
 
         // Command: Delete
         if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
-            this.log("Action: DELETE");
             this.deleteLastEntry();
             return;
         }
 
         // Command: Clear All
         if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零') || cleanText.includes('清楚') || cleanText.includes('歸0')) {
-            this.log("Action: CLEAR ALL triggered");
             this.clearAllEntries();
             return;
         }
 
         // Command: Summary
         if (cleanText.includes('總共') || cleanText.includes('多少') || cleanText.includes('結算') || cleanText.includes('買單') || cleanText.includes('此單')) {
-            this.log("Action: SUMMARY");
             this.showSummary();
             return;
         }
@@ -327,7 +289,6 @@ class VoiceCalculator {
         });
 
         const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.、]+/);
-        this.log(`Tokens: ${JSON.stringify(tokens)}`);
 
         let addedCount = 0;
         tokens.forEach(token => {
@@ -423,7 +384,6 @@ class VoiceCalculator {
             if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
         } else {
             this.showTranscript('無資料 (無需清空)');
-            if (navigator.vibrate) navigator.vibrate(50);
         }
     }
 
