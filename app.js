@@ -116,6 +116,15 @@ class VoiceCalculator {
                 if (interimTranscript) {
                     this.showTranscript(interimTranscript);
 
+                    // Eager Command Execution:
+                    // If the user says a command, execute it immediately without waiting for finalization.
+                    if (this.isCommand(interimTranscript)) {
+                        console.log("Eager Command Triggered:", interimTranscript);
+                        this.processSpeechInput(interimTranscript);
+                        this.recognition.abort(); // Reset immediately
+                        return;
+                    }
+
                     // Force finalize if stuck in interim state for > 0.4s
                     this.forceFinalizeTimer = setTimeout(() => {
                         console.log("Force Finalizing:", interimTranscript);
