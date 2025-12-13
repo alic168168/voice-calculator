@@ -125,13 +125,12 @@ class VoiceCalculator {
                         return;
                     }
 
-                    // Force finalize if stuck in interim state for > 0.4s
+                    // Force finalize if stuck in interim state for > 0.2s (Extreme speed)
                     this.forceFinalizeTimer = setTimeout(() => {
                         console.log("Force Finalizing:", interimTranscript);
                         // Do NOT process here. stop() will trigger the final result event naturally.
-                        // Using abort() was causing data loss for trailing numbers.
                         if (this.isListening) this.recognition.stop();
-                    }, 400);
+                    }, 200);
                 }
             };
 
