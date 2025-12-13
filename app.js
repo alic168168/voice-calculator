@@ -253,6 +253,14 @@ class VoiceCalculator {
         this.liveTranscript.classList.add('hidden');
     }
 
+    isCommand(text) {
+        if (!text) return false;
+        const lower = text.toLowerCase();
+        return text.includes('清除') || text.includes('全清') || text.includes('歸零') ||
+            text.includes('總共') || text.includes('多少') || text.includes('結算') || text.includes('買單') || text.includes('此單') ||
+            text.includes('刪除') || lower.includes('delete');
+    }
+
     processSpeechInput(text) {
         let cleanText = text.trim();
         cleanText = cleanText.replace(/,/g, '');
