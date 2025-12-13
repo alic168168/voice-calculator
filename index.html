@@ -117,6 +117,24 @@
         </div>
     </div>
 
+    <!-- Settings Modal (Restored) -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">設定</h2>
+            <div class="setting-group" style="margin-bottom: 2rem;">
+                <label style="display:block; color:var(--text-secondary); margin-bottom:0.5rem;">閒置自動關閉</label>
+                <select id="auto-stop-select" class="settings-select">
+                    <option value="1">1 分鐘</option>
+                    <option value="3" selected>3 分鐘 (預設)</option>
+                    <option value="5">5 分鐘</option>
+                    <option value="10">10 分鐘</option>
+                    <option value="30">30 分鐘</option>
+                </select>
+            </div>
+            <button id="save-settings-btn" class="primary-btn">儲存設定</button>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 
