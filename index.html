@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Voice Calculator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="app-container">
         <header class="app-header">
@@ -20,35 +24,70 @@
             <div class="empty-state">
                 <p>請按下方按鈕開始說話<br>例如：「100 200 50」</p>
                 <div class="commands-hint">
-                    <span>指令：</span>
-                    <span class="chip">刪除</span>
-                    <span class="chip">總共多少</span>
+                    <span>提示：可說出多個數字</span>
                 </div>
             </div>
             <!-- Entries will be injected here -->
         </main>
 
+        <div id="live-transcript" class="transcript-box hidden">...</div>
+
         <footer class="app-controls">
             <div class="total-display-area" id="total-area">
-                <div class="total-label">總計 (0 筆)</div>
-                <div class="total-amount" id="total-amount">0</div>
-            </div>
-            
-            <button id="mic-btn" class="mic-button" aria-label="開始聆聽">
-                <div class="mic-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                <button id="btn-clear-all" class="mini-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
                     </svg>
+                    全清
+                </button>
+                <div class="total-info">
+                    <div class="total-label">總計 (0 筆)</div>
+                    <div class="total-amount" id="total-amount">0</div>
                 </div>
-                <div class="ripple-ring"></div>
-                <div class="ripple-ring delay-1"></div>
-            </button>
+            </div>
+
+            <div class="controls-row">
+                <button id="btn-delete" class="secondary-btn btn-delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                    <span>刪除</span>
+                </button>
+
+                <button id="mic-btn" class="mic-button" aria-label="開始聆聽">
+                    <div class="mic-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </div>
+                    <div class="ripple-ring"></div>
+                    <div class="ripple-ring delay-1"></div>
+                </button>
+
+                <button id="btn-summary" class="secondary-btn btn-summary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span>結算</span>
+                </button>
+            </div>
         </footer>
     </div>
-    
+
     <!-- Modal for "總共多少" Summary -->
     <div id="summary-modal" class="modal hidden">
         <div class="modal-content">
@@ -69,4 +108,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
