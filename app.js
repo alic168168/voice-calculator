@@ -116,13 +116,13 @@ class VoiceCalculator {
                 if (interimTranscript) {
                     this.showTranscript(interimTranscript);
 
-                    // Force finalize if stuck in interim state for > 0.6s
+                    // Force finalize if stuck in interim state for > 0.4s
                     this.forceFinalizeTimer = setTimeout(() => {
                         console.log("Force Finalizing:", interimTranscript);
                         // Do NOT process here. stop() will trigger the final result event naturally.
                         // Using abort() was causing data loss for trailing numbers.
                         if (this.isListening) this.recognition.stop();
-                    }, 600);
+                    }, 400);
                 }
             };
 
@@ -213,11 +213,13 @@ class VoiceCalculator {
 
         this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
         this.btnSummary.addEventListener('click', () => this.showSummary());
+
+        // Fixed: Use consistent clearAllEntries method
         this.btnClear.addEventListener('click', () => {
-            if (confirm('清空所有數字？')) {
-                this.entries = [];
-                this.render();
-                this.showTranscript('已清空');
+            if (this.entries.length > 0 && confirm('確定清空所有數字？')) {
+                this.clearAllEntries();
+            } else if (this.entries.length === 0) {
+                this.showTranscript('無資料');
             }
         });
 
@@ -256,14 +258,20 @@ class VoiceCalculator {
         cleanText = cleanText.replace(/,/g, '');
         if (!cleanText) return;
 
+        // Command: Delete
         if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
             this.deleteLastEntry();
             return;
         }
+
+        // Command: Clear All
         if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零')) {
+            console.log("Triggering Clear All from Voice");
             this.clearAllEntries();
             return;
         }
+
+        // Command: Summary
         if (cleanText.includes('總共') || cleanText.includes('多少') || cleanText.includes('結算') || cleanText.includes('買單') || cleanText.includes('此單')) {
             this.showSummary();
             return;
@@ -370,9 +378,10 @@ class VoiceCalculator {
             this.entries = [];
             this.render();
             this.showTranscript('已全部清空');
-            if (navigator.vibrate) navigator.vibrate([50, 50]);
+            // Two distinct vibrations to confirm clear
+            if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
         } else {
-            this.showTranscript('無資料');
+            this.showTranscript('無資料 (無需清空)');
         }
     }
 
