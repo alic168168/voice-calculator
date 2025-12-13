@@ -66,7 +66,7 @@ class VoiceCalculator {
                         } catch (e) {
                             console.error("Restart failed", e);
                         }
-                    }, 300); // 300ms delay to prevent browser throttling
+                    }, 50); // Minimized delay for continuous input
                 } else {
                     this.updateUIState(false);
                 }
