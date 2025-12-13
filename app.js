@@ -200,7 +200,10 @@ class VoiceCalculator {
     }
 
     processSpeechInput(text) {
-        const cleanText = text.trim();
+        let cleanText = text.trim();
+        // Fix logic for "10,000" where comma breaks parsing
+        // Remove commas that are between digits
+        cleanText = cleanText.replace(/(\d),(\d)/g, '$1$2');
         if (!cleanText) return;
 
         if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
