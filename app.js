@@ -36,8 +36,10 @@ class VoiceCalculator {
 
         // Debug Console Setup
         this.debugEl = document.getElementById('debug-console');
-        this.debugEl.style.display = 'block'; // Enable debug
-        this.log("Debug Mode Started");
+        if (this.debugEl) {
+            this.debugEl.style.display = 'block'; // Enable debug
+            this.log("Debug Mode Started");
+        }
 
         this.render();
     }
@@ -57,7 +59,7 @@ class VoiceCalculator {
         if (this.isListening) {
             const ms = this.autoStopMinutes * 60 * 1000;
             this.inactivityTimer = setTimeout(() => {
-                console.log('Inactivity timeout reached.');
+                this.log('Inactivity timeout reached.');
                 this.isListening = false;
                 this.recognition.stop();
                 this.updateUIState(false);
@@ -80,7 +82,7 @@ class VoiceCalculator {
             this.recognition.maxAlternatives = 1;
 
             this.recognition.onstart = () => {
-                console.log('Voice Service: Started');
+                this.log('Voice Service: Started');
                 // Only update UI to listening if we intended to listen
                 if (this.isListening) {
                     this.updateUIState(true);
@@ -90,10 +92,10 @@ class VoiceCalculator {
             };
 
             this.recognition.onend = () => {
-                console.log('Voice Service: Ended');
+                this.log('Voice Service: Ended');
                 // Vital: If we are supposed to be listening, restart immediately.
                 if (this.isListening) {
-                    console.log('Voice Service: Auto-restarting...');
+                    this.log('Voice Service: Auto-restarting...');
 
                     clearTimeout(this.restartTimer);
                     this.restartTimer = setTimeout(() => {
@@ -134,7 +136,7 @@ class VoiceCalculator {
                     // Eager Command Execution:
                     // If the user says a command, execute it immediately without waiting for finalization.
                     if (this.isCommand(interimTranscript)) {
-                        console.log("Eager Command Triggered:", interimTranscript);
+                        this.log(`Eager Command Triggered: ${interimTranscript}`);
                         this.showTranscript(`(指令觸發) ${interimTranscript}`); // Visual Feedback
                         this.processSpeechInput(interimTranscript);
 
@@ -144,10 +146,8 @@ class VoiceCalculator {
                     }
 
                     // Force finalize if stuck in interim state for > 0.2s (Extreme speed)
-
-                    // Force finalize if stuck in interim state for > 0.2s (Extreme speed)
                     this.forceFinalizeTimer = setTimeout(() => {
-                        console.log("Force Finalizing:", interimTranscript);
+                        this.log(`Force Finalizing: ${interimTranscript}`);
                         // Do NOT process here. stop() will trigger the final result event naturally.
                         if (this.isListening) this.recognition.stop();
                     }, 200);
@@ -155,7 +155,7 @@ class VoiceCalculator {
             };
 
             this.recognition.onerror = (event) => {
-                console.log('Voice Service Error:', event.error);
+                this.log(`Voice Service Error: ${event.error}`);
 
                 // Benign errors: 'no-speech' (silence), 'aborted' (manual stop or restart), 'network' (transient)
                 if (['no-speech', 'aborted', 'network'].includes(event.error)) {
@@ -292,23 +292,27 @@ class VoiceCalculator {
     processSpeechInput(text) {
         let cleanText = text.trim();
         cleanText = cleanText.replace(/,/g, '');
+        this.log(`Process Input: "${text}" => Cleaned: "${cleanText}"`);
+
         if (!cleanText) return;
 
         // Command: Delete
         if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
+            this.log("Action: DELETE");
             this.deleteLastEntry();
             return;
         }
 
         // Command: Clear All
-        if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零')) {
-            console.log("Triggering Clear All from Voice");
+        if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零') || cleanText.includes('清楚') || cleanText.includes('歸0')) {
+            this.log("Action: CLEAR ALL triggered");
             this.clearAllEntries();
             return;
         }
 
         // Command: Summary
         if (cleanText.includes('總共') || cleanText.includes('多少') || cleanText.includes('結算') || cleanText.includes('買單') || cleanText.includes('此單')) {
+            this.log("Action: SUMMARY");
             this.showSummary();
             return;
         }
@@ -323,6 +327,7 @@ class VoiceCalculator {
         });
 
         const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.、]+/);
+        this.log(`Tokens: ${JSON.stringify(tokens)}`);
 
         let addedCount = 0;
         tokens.forEach(token => {
@@ -418,6 +423,7 @@ class VoiceCalculator {
             if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
         } else {
             this.showTranscript('無資料 (無需清空)');
+            if (navigator.vibrate) navigator.vibrate(50);
         }
     }
 

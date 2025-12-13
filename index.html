@@ -3,91 +3,64 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Voice Calculator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
-        rel="stylesheet">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>語音加總計算機</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div class="app-container">
-        <header class="app-header">
-            <h1>語音計算機</h1>
-            <div class="header-actions">
-                <button id="btn-settings" class="text-btn" aria-label="設定">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path
-                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                        </path>
-                    </svg>
-                </button>
+        <!-- Settings Button -->
+        <button id="btn-settings" class="settings-btn" aria-label="設定">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+            </svg>
+        </button>
+
+        <header>
+            <div class="total-display">
+                <span class="currency">NT$</span>
+                <span class="amount" id="total-amount">0</span>
             </div>
-            <div id="status-indicator" class="status-badge">就緒</div>
+            <div class="total-label">總計 (0 筆)</div>
         </header>
 
-        <main class="calc-list-container" id="entries-list">
+        <main id="entries-list" class="entries-container">
+            <!-- Entries will be injected here -->
             <div class="empty-state">
-                <p>請按下方按鈕開始說話<br>例如：「100 200 50」</p>
+                <p>請按開始說話<br>「一百五 200 300」</p>
                 <div class="commands-hint">
                     <span>提示：可說出多個數字</span>
                 </div>
             </div>
-            <!-- Entries will be injected here -->
         </main>
 
-        <div id="live-transcript" class="transcript-box hidden">...</div>
+        <div id="live-transcript" class="transcript-overlay hidden"></div>
+        <div id="status-indicator" class="status-pill">點擊麥克風</div>
 
-        <footer class="app-controls">
-            <div class="total-display-area" id="total-area">
-                <button id="btn-clear-all" class="mini-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6h18"></path>
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                    全清
-                </button>
-                <div class="total-info">
-                    <div class="total-label">總計 (0 筆)</div>
-                    <div class="total-amount" id="total-amount">0</div>
-                </div>
-            </div>
-
-            <div class="controls-row">
-                <button id="btn-delete" class="secondary-btn btn-delete">
+        <div class="controls-area">
+            <div class="action-buttons">
+                <!-- Clear All Button -->
+                <button id="btn-clear-all" class="secondary-btn" aria-label="全清">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 6h18"></path>
                         <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                         <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                     </svg>
-                    <span>刪除</span>
+                    <span>全清</span>
                 </button>
 
-                <button id="mic-btn" class="mic-button" aria-label="開始聆聽">
-                    <div class="mic-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                            <line x1="12" y1="19" x2="12" y2="23"></line>
-                            <line x1="8" y1="23" x2="16" y2="23"></line>
-                        </svg>
-                    </div>
-                    <div class="ripple-ring"></div>
-                    <div class="ripple-ring delay-1"></div>
-                </button>
-
-                <button id="btn-summary" class="secondary-btn btn-summary">
+                <!-- Summary Button -->
+                <button id="btn-summary" class="secondary-btn" aria-label="結算">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="1" x2="12" y2="23"></line>
@@ -96,48 +69,77 @@
                     <span>結算</span>
                 </button>
             </div>
-        </footer>
+
+            <!-- Mic Button -->
+            <button id="mic-btn" class="mic-button" aria-label="開始/停止 錄音">
+                <div class="mic-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </div>
+            </button>
+
+            <div class="action-buttons right">
+                <!-- Delete Last Button -->
+                <button id="btn-delete" class="secondary-btn" aria-label="刪除一筆">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                        <line x1="18" y1="9" x2="12" y2="15"></line>
+                        <line x1="12" y1="9" x2="18" y2="15"></line>
+                    </svg>
+                    <span>刪除</span>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Modal for "總共多少" Summary -->
+    <!-- Summary Modal -->
     <div id="summary-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="modal-title">結算總覽</h2>
-            <div class="summary-details">
+            <h2>結算總覽</h2>
+            <div class="modal-body">
                 <div class="summary-row">
-                    <span>筆數</span>
-                    <span id="modal-count">0</span>
+                    <span>總筆數</span>
+                    <span id="modal-count" class="value">0</span>
                 </div>
                 <div class="summary-row total">
                     <span>總金額</span>
-                    <span id="modal-total">0</span>
+                    <span class="currency">NT$</span>
+                    <span id="modal-total" class="value">0</span>
                 </div>
             </div>
-            <button id="close-modal-btn" class="primary-btn">確認</button>
+            <button id="close-modal-btn" class="primary-btn">關閉</button>
         </div>
     </div>
 
-    <!-- Settings Modal (Restored) -->
+    <!-- Settings Modal -->
     <div id="settings-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="modal-title">設定</h2>
-            <div class="setting-group" style="margin-bottom: 2rem;">
-                <label style="display:block; color:var(--text-secondary); margin-bottom:0.5rem;">閒置自動關閉</label>
-                <select id="auto-stop-select" class="settings-select">
+            <h2>設定</h2>
+            <div class="settings-body">
+                <label for="auto-stop-select">閒置自動關閉 (分鐘)</label>
+                <select id="auto-stop-select" class="styled-select">
                     <option value="1">1 分鐘</option>
-                    <option value="3" selected>3 分鐘 (預設)</option>
+                    <option value="2">2 分鐘</option>
+                    <option value="3">3 分鐘</option>
                     <option value="5">5 分鐘</option>
                     <option value="10">10 分鐘</option>
-                    <option value="30">30 分鐘</option>
                 </select>
             </div>
-            <button id="save-settings-btn" class="primary-btn">儲存設定</button>
+            <button id="save-settings-btn" class="primary-btn">儲存</button>
         </div>
     </div>
 
+    <!-- Debug Console -->
     <div id="debug-console"
         style="position:fixed;bottom:0;left:0;width:100%;height:150px;background:rgba(0,0,0,0.8);color:#0f0;font-size:12px;overflow-y:auto;z-index:9999;pointer-events:none;padding:5px;display:none;">
     </div>
+
     <script src="app.js"></script>
 </body>
 
