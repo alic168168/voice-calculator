@@ -154,18 +154,30 @@ class VoiceCalculator {
     initListeners() {
         // Settings Button Logic
         if (this.settingsBtn) {
+            const settingsModal = document.getElementById('settings-modal');
+            const saveSettingsBtn = document.getElementById('save-settings-btn');
+            const autoStopSelect = document.getElementById('auto-stop-select');
+
             this.settingsBtn.addEventListener('click', () => {
-                const input = prompt(`請輸入閒置自動關閉時間 (1-10 分鐘)\n目前設定: ${this.autoStopMinutes} 分鐘`, this.autoStopMinutes);
-                if (input !== null) {
-                    const mins = parseInt(input);
-                    if (!isNaN(mins) && mins >= 1 && mins <= 10) {
-                        this.autoStopMinutes = mins;
-                        alert(`已設定為 ${mins} 分鐘後自動關閉麥克風`);
-                        if (this.isListening) this.resetInactivityTimer();
-                    } else {
-                        alert('請輸入 1 到 10 之間的數字');
-                    }
-                }
+                // Open modal
+                settingsModal.classList.remove('hidden');
+                autoStopSelect.value = this.autoStopMinutes;
+            });
+
+            saveSettingsBtn.addEventListener('click', () => {
+                // Save and close
+                const val = parseInt(autoStopSelect.value);
+                this.autoStopMinutes = val;
+                settingsModal.classList.add('hidden');
+
+                // Feedback
+                this.showTranscript(`已設定: ${val} 分鐘`);
+                if (this.isListening) this.resetInactivityTimer();
+            });
+
+            // Close on click outside
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) settingsModal.classList.add('hidden');
             });
         }
 

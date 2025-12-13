@@ -417,3 +417,24 @@ body {
     font-size: 1rem;
     cursor: pointer;
 }
+
+/* Settings Dropdown */
+.settings-select {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-size: 1.1rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    /* Hide default arrow depending on browser */
+    text-align: center;
+}
+
+.settings-select option {
+    background: var(--bg-card);
+    color: var(--text-main);
+}
