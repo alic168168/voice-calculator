@@ -410,6 +410,7 @@
 
             processSpeechInput(text) {
                 let cleanText = text.trim();
+                cleanText = cleanText.replace(/,/g, '');
                 if (!cleanText) return;
 
                 // Command: Delete
@@ -439,9 +440,6 @@
                 // Normalize Decimals: "點" -> "."
                 cleanText = cleanText.replace(/點/g, '.');
 
-                // Remove commas
-                cleanText = cleanText.replace(/,/g, '');
-
                 // Split by anything that isn't a Number char, Operator, or Dot
                 const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.\-\*\/\+]+/);
 
@@ -463,7 +461,7 @@
                     token = token.trim();
                     if (!token) return;
 
-                    // If token matches operator
+                    // If token is an operator
                     if (['-', '*', '/'].includes(token)) {
                         bufferExpression.push(token);
                         return;
@@ -474,6 +472,14 @@
 
                     // If valid number
                     if (!isNaN(val)) {
+                        // Check if previous item in buffer was ALSO a number (Implicit break)
+                        // Example: "100 200" -> buffer has [100], val is 200. Flush 100 first.
+                        if (bufferExpression.length > 0) {
+                            const lastToken = bufferExpression[bufferExpression.length - 1];
+                            if (typeof lastToken === 'number') {
+                                flushBuffer();
+                            }
+                        }
                         bufferExpression.push(val);
                     } else {
                         // If invalid (e.g. noise), flush previous buffer
@@ -493,18 +499,31 @@
             evaluateExpression(tokens) {
                 if (tokens.length === 0) return null;
 
-                // If single number, return it
+                // Case 1: Single Number
                 if (tokens.length === 1 && typeof tokens[0] === 'number') {
                     return tokens[0];
                 }
 
-                // Handle leading negative: ["-", 150] -> -150
-                // Handle leading operators: ["*", 3] -> (Currently ignored)
-
+                // Case 2: Negative Number (Unary -)
+                // e.g. ["-", 150] -> -150
+                // We prefer this over "Ans - 150" for simple lists
                 if (tokens[0] === '-' && tokens.length === 2 && typeof tokens[1] === 'number') {
                     return -tokens[1];
                 }
 
+                // Case 3: Stateful Arithmetic (Ans * x, Ans / x)
+                // If it starts with * or /, prepend the last entry value
+                if (['*', '/'].includes(tokens[0])) {
+                    if (this.entries.length > 0) {
+                        const lastValue = this.entries[this.entries.length - 1].value;
+                        tokens.unshift(lastValue);
+                    } else {
+                        // No previous entry to operate on
+                        return null;
+                    }
+                }
+
+                // Case 4: General Expression
                 try {
                     const expr = tokens.join(' ');
                     // Security check: expr should only contain digits, ., -, *, /, space
