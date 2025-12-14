@@ -431,18 +431,19 @@
                 }
 
                 // --- Arithmetic Pre-processing ---
-                // Replace "減", "扣掉" with " - "
-                // Replace "乘" with " * "
-                // Replace "除" with " / "
-                // Add spaces to buffer operators
-                cleanText = cleanText.replace(/減|扣掉/g, ' - ');
-                cleanText = cleanText.replace(/乘/g, ' * ');
-                cleanText = cleanText.replace(/除/g, ' / ');
+                // Normalize Operators
+                cleanText = cleanText.replace(/減去|扣掉|扣除|減/g, ' - ');
+                cleanText = cleanText.replace(/乘以|乘上|乘/g, ' * ');
+                cleanText = cleanText.replace(/除以|除/g, ' / ');
+
+                // Normalize Decimals: "點" -> "."
+                cleanText = cleanText.replace(/點/g, '.');
 
                 // Remove commas
                 cleanText = cleanText.replace(/,/g, '');
 
-                const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.、\-\*\/\+]+/);
+                // Split by anything that isn't a Number char, Operator, or Dot
+                const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.\-\*\/\+]+/);
 
                 let addedCount = 0;
                 let bufferExpression = [];
@@ -473,9 +474,6 @@
 
                     // If valid number
                     if (!isNaN(val)) {
-                        // Check if previous token was an operator, OR if we are building an expression
-                        // But wait, split might separate "100" and "*" into ["100", "*"]
-                        // So we just push to buffer
                         bufferExpression.push(val);
                     } else {
                         // If invalid (e.g. noise), flush previous buffer
@@ -500,24 +498,14 @@
                     return tokens[0];
                 }
 
-                // Simple parser for Left-to-Right evaluation with Operator Precedence?
-                // Or just straight evaluation? User said "1000 乘 0.03".
-                // User also said "減 150".
-
                 // Handle leading negative: ["-", 150] -> -150
+                // Handle leading operators: ["*", 3] -> (Currently ignored)
+
                 if (tokens[0] === '-' && tokens.length === 2 && typeof tokens[1] === 'number') {
                     return -tokens[1];
                 }
 
-                // If complex expression, let's join and use a safer eval or manual calc
-                // Since tokens are now [Number, Operator, Number...]
-                // We'll iterate.
-
                 try {
-                    // Quick and dirty precedence handling by doing mul/div first?
-                    // Let's do a simple pass. 
-                    // 1. Convert to string "1000 * 0.03"
-                    // 2. Eval (safe here because tokens are strictly Numbers or known Operators)
                     const expr = tokens.join(' ');
                     // Security check: expr should only contain digits, ., -, *, /, space
                     if (!/^[0-9\.\s\-\*\/]+$/.test(expr)) return null;
@@ -539,58 +527,89 @@
             }
 
             parseNumber(str) {
-                const floatCheck = parseFloat(str);
-                if (!isNaN(floatCheck) && !/[零一二兩三四五六七八九十百千萬]/.test(str)) {
-                    return floatCheck;
+                // If pure numbers/dots (e.g. "0.03"), parse directly
+                if (/^[0-9\.]+$/.test(str)) {
+                    return parseFloat(str);
                 }
 
+                // If mixed or Chinese
                 const map = {
                     '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
                     '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
                     '百': 100, '千': 1000, '萬': 10000
                 };
 
+                // Split into integer part and decimal part if "." exists
+                const parts = str.split('.');
+                const integerPart = parts[0];
+                const decimalPart = parts[1];
+
                 let val = 0;
-                let bucket = 0;
-                let currentDigitStr = '';
 
-                for (let i = 0; i < str.length; i++) {
-                    const char = str[i];
-
-                    if (/[0-9\.]/.test(char)) {
-                        currentDigitStr += char;
-                        continue;
-                    }
-
-                    if (currentDigitStr) {
-                        bucket = parseFloat(currentDigitStr);
-                        currentDigitStr = '';
-                    }
-
-                    const num = map[char];
-                    if (num === undefined) continue;
-
-                    if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
-                        if (bucket === 0 && char === '十') bucket = 1;
-
-                        if (num === 10000) {
-                            val = (val + bucket) * 10000;
-                            bucket = 0;
-                        } else {
-                            val += bucket * num;
-                            bucket = 0;
-                        }
+                // Parse Integer Part
+                if (integerPart) {
+                    if (/^[0-9]+$/.test(integerPart)) {
+                        val = parseFloat(integerPart);
                     } else {
-                        bucket = num;
+                        // Chinese parsing for integer
+                        let bucket = 0;
+                        let currentDigitStr = '';
+
+                        for (let i = 0; i < integerPart.length; i++) {
+                            const char = integerPart[i];
+
+                            if (/[0-9]/.test(char)) {
+                                currentDigitStr += char;
+                                continue;
+                            }
+
+                            if (currentDigitStr) {
+                                bucket = parseFloat(currentDigitStr);
+                                currentDigitStr = '';
+                            }
+
+                            const num = map[char];
+                            if (num === undefined) continue;
+
+                            if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
+                                if (bucket === 0 && char === '十') bucket = 1;
+
+                                if (num === 10000) {
+                                    val = (val + bucket) * 10000;
+                                    bucket = 0;
+                                } else {
+                                    val += bucket * num;
+                                    bucket = 0;
+                                }
+                            } else {
+                                bucket = num;
+                            }
+                        }
+                        if (currentDigitStr) {
+                            bucket = parseFloat(currentDigitStr);
+                        }
+                        val += bucket;
                     }
                 }
 
-                if (currentDigitStr) {
-                    bucket = parseFloat(currentDigitStr);
+                // Parse Decimal Part (if exists)
+                if (decimalPart) {
+                    // Chinese decimal reading is usually digit-by-digit: "零點零三" -> 0 . 0 3
+                    let decimalValStr = '';
+                    for (let i = 0; i < decimalPart.length; i++) {
+                        const char = decimalPart[i];
+                        if (/[0-9]/.test(char)) {
+                            decimalValStr += char;
+                        } else if (map[char] !== undefined && map[char] < 10) {
+                            decimalValStr += map[char];
+                        }
+                    }
+                    if (decimalValStr) {
+                        val += parseFloat(`0.${decimalValStr}`);
+                    }
                 }
-                val += bucket;
 
-                return val === 0 ? NaN : val;
+                return val === 0 && !str.includes('零') && parseFloat(str) !== 0 ? NaN : val;
             }
 
             deleteLastEntry() {
