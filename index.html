@@ -84,37 +84,37 @@
         <div id="status-indicator" class="status-pill">點擊麥克風</div>
 
         <div class="controls-area">
-            <!-- Operator Row (New) -->
-            <div class="operator-row">
-                <button class="operator-btn active" id="btn-op-add" data-op="+">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-                <button class="operator-btn" id="btn-op-sub" data-op="-">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-                <button class="operator-btn" id="btn-op-mul" data-op="*">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-                <button class="operator-btn" id="btn-op-div" data-op="/">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="16.88" y1="3.549" x2="7.12" y2="20.451"></line>
-                    </svg>
-                </button>
-            </div>
-
             <div class="app-controls">
+                <!-- Operator Row (Moved Inside) -->
+                <div class="operator-row" style="margin-bottom: 12px; width: 100%;">
+                    <button class="operator-btn active" id="btn-op-add" data-op="+">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button class="operator-btn" id="btn-op-sub" data-op="-">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button class="operator-btn" id="btn-op-mul" data-op="*">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <button class="operator-btn" id="btn-op-div" data-op="/">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="16.88" y1="3.549" x2="7.12" y2="20.451"></line>
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Top Row: Total & Clear -->
                 <div class="total-display-area">
                     <button id="btn-clear-all" class="status-badge"
@@ -831,17 +831,22 @@
                 if (this.entries.length === 0) {
                     this.entriesList.innerHTML = `
                         <div class="empty-state">
-                           <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
-                                <p style="margin-bottom: 8px;">● 請按開始說話相加只需喊數字<br>
+                            <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
+                                <p style="margin-bottom: 8px;">● 請按開始說話，相加只需喊數字<br>
                                     <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
                                 </p>
-                                <p style="margin-bottom: 8px;">● 減/乘/除 法須加「減」「乘」「除」加數字<br>
-                                    <span style="color: var(--text-secondary); font-size: 0.9em;">例「減150 乘200 除300」</span>
-                                </p>
                                 <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
+                                <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v2.0 (運算面板)</p>
+                                <p style="margin-top: 8px; color: #4a90e2; font-weight: bold;">目前模式: <span id="mode-hint">加法 (預設)</span></p>
                             </div>
                         </div>
                     `;
+                    // Restoration of the mode-hint since we might need it
+                    // Wait, the dynamic mode hint update relies on document.getElementById('mode-hint')
+                    // If we overwrite innerHTML, we might lose the element reference if not careful, 
+                    // but updateOperatorUI() should handle it if called after render?
+                    // Actually, let's make sure updateOperatorUI called after this.
+                    setTimeout(() => this.updateOperatorUI(), 0);
                     return;
                 }
 
