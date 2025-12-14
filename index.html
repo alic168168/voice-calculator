@@ -10,6 +10,48 @@
     <title>語音加總計算機</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Operator Row Styling */
+        .operator-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 0px;
+            /* Merged visually with below */
+            padding: 0 16px;
+        }
+
+        .operator-btn {
+            background: #4a90e2;
+            /* Blue */
+            border: none;
+            border-radius: 12px;
+            width: 100%;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .operator-btn svg {
+            color: white;
+            width: 32px;
+            height: 32px;
+            stroke-width: 3;
+        }
+
+        .operator-btn.active {
+            background: #2c3e50;
+            /* Dark when active */
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: 2px solid #4a90e2;
+        }
+    </style>
 </head>
 
 <body>
@@ -29,13 +71,9 @@
             <!-- Entries will be injected here -->
             <div class="empty-state">
                 <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
-                    <p style="margin-bottom: 8px;">● 請按開始說話相加只需喊數字<br>
-                        <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
-                    </p>
-                    <p style="margin-bottom: 8px;">● 減/乘/除 法須加「減」「乘」「除」加數字<br>
-                        <span style="color: var(--text-secondary); font-size: 0.9em;">例「減150 乘200 除300」</span>
-                    </p>
-                    <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
+                    <p>● 點選下方運算符號 (＋ － × ÷)</p>
+                    <p>● 接著唸出數字即可自動計算</p>
+                    <p style="color: #4a90e2; font-weight: bold;">目前模式: <span id="mode-hint">加法 (預設)</span></p>
                 </div>
             </div>
         </main>
@@ -44,6 +82,36 @@
         <div id="status-indicator" class="status-pill">點擊麥克風</div>
 
         <div class="controls-area">
+            <!-- Operator Row (New) -->
+            <div class="operator-row">
+                <button class="operator-btn active" id="btn-op-add" data-op="+">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <button class="operator-btn" id="btn-op-sub" data-op="-">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <button class="operator-btn" id="btn-op-mul" data-op="*">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <button class="operator-btn" id="btn-op-div" data-op="/">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="16.88" y1="3.549" x2="7.12" y2="20.451"></line>
+                    </svg>
+                </button>
+            </div>
+
             <div class="app-controls">
                 <!-- Top Row: Total & Clear -->
                 <div class="total-display-area">
@@ -165,6 +233,7 @@
                 this.entries = [];
                 this.isListening = false;
                 this.recognition = null;
+                this.currentOperator = '+'; // Default operator
 
                 // Timers
                 this.transcriptTimeout = null;
@@ -195,7 +264,37 @@
 
                 this.initSpeechRecognition();
                 this.initListeners();
+                this.initOperatorButtons(); // New
                 this.render();
+                this.updateOperatorUI(); // Set initial active state and hint
+            }
+
+            initOperatorButtons() {
+                const ops = document.querySelectorAll('.operator-btn');
+                ops.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.currentOperator = btn.dataset.op;
+                        this.updateOperatorUI();
+                        if (navigator.vibrate) navigator.vibrate(30);
+                    });
+                });
+            }
+
+            updateOperatorUI() {
+                document.querySelectorAll('.operator-btn').forEach(btn => {
+                    if (btn.dataset.op === this.currentOperator) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // Update hints
+                const hint = document.getElementById('mode-hint');
+                if (hint) {
+                    const textMap = { '+': '加法 (預設)', '-': '減法', '*': '乘法 (自動計算)', '/': '除法 (自動計算)' };
+                    hint.textContent = textMap[this.currentOperator] || '加法';
+                }
             }
 
             resetInactivityTimer() {
@@ -426,10 +525,10 @@
                 cleanText = cleanText.replace(/,/g, '');
                 if (!cleanText) return;
 
-                // --- Debug Logging ---
+                // --- Debug Logging (Raw) ---
                 const debugBar = document.getElementById('debug-bar');
                 if (debugBar) {
-                    debugBar.textContent = `聽見: ${cleanText}`;
+                    debugBar.textContent = `聽見: ${cleanText} | 模式: ${this.currentOperator}`;
                 }
 
                 // Command: Delete
@@ -451,19 +550,18 @@
                 }
 
                 // --- Arithmetic Pre-processing ---
-                // Normalize Operators (Expanded for robustness)
-                cleanText = cleanText.replace(/減去|扣掉|扣除|減|➖/g, ' - ');
-                cleanText = cleanText.replace(/乘以|乘上|乘|✖️|x|X/g, ' * ');
-                cleanText = cleanText.replace(/除以|除|➗/g, ' / ');
-
-                // Normalize Decimals: "點" -> "."
-                cleanText = cleanText.replace(/點/g, '.');
+                // We keep the old normalization just in case, but we prioritize the UI operator
+                cleanText = cleanText.replace(/減去|扣掉|扣除|減|➖|－|﹣/g, ' - ');
+                cleanText = cleanText.replace(/乘以|乘上|乘|✖️|x|X|成|×|＊|Ｘ|ｘ/g, ' * ');
+                cleanText = cleanText.replace(/除以|除|➗|÷|／/g, ' / ');
+                cleanText = cleanText.replace(/加|＋/g, ' + ');
+                cleanText = cleanText.replace(/點|。|．|·/g, '.');
 
                 // Split by anything that isn't a Number char, Operator, or Dot
                 const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.\-\*\/\+]+/);
 
                 if (debugBar) {
-                    debugBar.textContent += ` | 解析: [${tokens.join(', ')}]`;
+                    debugBar.textContent += ` | 處理後: ${cleanText} | Token: [${tokens.join(', ')}]`;
                 }
 
                 let addedCount = 0;
@@ -471,10 +569,17 @@
 
                 const flushBuffer = () => {
                     if (bufferExpression.length > 0) {
-                        const result = this.evaluateExpression(bufferExpression);
-                        if (result !== null && !isNaN(result)) {
-                            this.addEntry(result);
-                            addedCount++;
+                        try {
+                            const result = this.evaluateExpression(bufferExpression);
+                            if (result !== null && !isNaN(result)) {
+                                this.addEntry(result);
+                                addedCount++;
+                                if (debugBar) debugBar.textContent += ` | 結果: ${result}`;
+                            } else {
+                                if (debugBar) debugBar.textContent += ` | 無效運算`;
+                            }
+                        } catch (e) {
+                            if (debugBar) debugBar.textContent += ` | 錯誤: ${e.message}`;
                         }
                         bufferExpression = [];
                     }
@@ -484,8 +589,12 @@
                     token = token.trim();
                     if (!token) return;
 
-                    // If token is an operator
-                    if (['-', '*', '/'].includes(token)) {
+                    // If token is an operator (explicitly spoken)
+                    if (['-', '*', '/', '+'].includes(token)) {
+                        // If there's a number before this operator, flush it first
+                        if (bufferExpression.length > 0 && typeof bufferExpression[bufferExpression.length - 1] === 'number') {
+                            flushBuffer();
+                        }
                         bufferExpression.push(token);
                         return;
                     }
@@ -495,14 +604,30 @@
 
                     // If valid number
                     if (!isNaN(val)) {
+                        // Apply Current Operator Logic if no explicit operator was spoken
+                        // If buffer is empty or the last token was a number (implying a new operation)
+                        // and the current operator is not '+', prepend the current operator.
+                        if (this.currentOperator !== '+' && (bufferExpression.length === 0 || typeof bufferExpression[bufferExpression.length - 1] === 'number')) {
+                            // If the last item was a number, flush it first to start a new operation
+                            if (typeof bufferExpression[bufferExpression.length - 1] === 'number') {
+                                flushBuffer();
+                            }
+                            bufferExpression.push(this.currentOperator);
+                        }
+
                         // Check if previous item in buffer was ALSO a number (Implicit break)
-                        // Example: "100 200" -> buffer has [100], val is 200. Flush 100 first.
+                        // This means "100 200" should be two separate additions, not "100 + 200"
                         if (bufferExpression.length > 0) {
                             const lastToken = bufferExpression[bufferExpression.length - 1];
                             if (typeof lastToken === 'number') {
                                 flushBuffer();
+                                // After flush, if currentOperator is not '+', re-inject it for the new number
+                                if (this.currentOperator !== '+') {
+                                    bufferExpression.push(this.currentOperator);
+                                }
                             }
                         }
+
                         bufferExpression.push(val);
                     } else {
                         // If invalid (e.g. noise), flush previous buffer
@@ -516,6 +641,10 @@
                 if (addedCount > 0) {
                     this.render();
                     if (navigator.vibrate) navigator.vibrate(50);
+
+                    // Auto-reset to Plus after one-shot? 
+                    // User said "若選X所有列表數字會相乘", implying a sticky mode.
+                    // Let's keep it Sticky for now.
                 }
             }
 
