@@ -104,6 +104,19 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Temporary Debug Bar -->
+            <div id="debug-bar" style="
+                margin-top: 10px;
+                padding: 5px;
+                background: #f0f0f0;
+                color: #555;
+                font-size: 0.8rem;
+                text-align: center;
+                border-radius: 4px;
+                min-height: 20px;
+                word-break: break-all;
+            "></div>
         </div>
     </div>
 
@@ -413,6 +426,12 @@
                 cleanText = cleanText.replace(/,/g, '');
                 if (!cleanText) return;
 
+                // --- Debug Logging ---
+                const debugBar = document.getElementById('debug-bar');
+                if (debugBar) {
+                    debugBar.textContent = `聽見: ${cleanText}`;
+                }
+
                 // Command: Delete
                 if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
                     this.deleteLastEntry();
@@ -432,16 +451,20 @@
                 }
 
                 // --- Arithmetic Pre-processing ---
-                // Normalize Operators
-                cleanText = cleanText.replace(/減去|扣掉|扣除|減/g, ' - ');
-                cleanText = cleanText.replace(/乘以|乘上|乘/g, ' * ');
-                cleanText = cleanText.replace(/除以|除/g, ' / ');
+                // Normalize Operators (Expanded for robustness)
+                cleanText = cleanText.replace(/減去|扣掉|扣除|減|➖/g, ' - ');
+                cleanText = cleanText.replace(/乘以|乘上|乘|✖️|x|X/g, ' * ');
+                cleanText = cleanText.replace(/除以|除|➗/g, ' / ');
 
                 // Normalize Decimals: "點" -> "."
                 cleanText = cleanText.replace(/點/g, '.');
 
                 // Split by anything that isn't a Number char, Operator, or Dot
                 const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.\-\*\/\+]+/);
+
+                if (debugBar) {
+                    debugBar.textContent += ` | 解析: [${tokens.join(', ')}]`;
+                }
 
                 let addedCount = 0;
                 let bufferExpression = [];
