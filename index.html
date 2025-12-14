@@ -28,9 +28,14 @@
         <main id="entries-list" class="calc-list-container">
             <!-- Entries will be injected here -->
             <div class="empty-state">
-                <p>請按開始說話<br>「一百五 200 300」</p>
-                <div class="commands-hint">
-                    <span>提示：可說出多個數字</span>
+                <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
+                    <p style="margin-bottom: 8px;">● 請按開始說話相加只需喊數字<br>
+                        <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
+                    </p>
+                    <p style="margin-bottom: 8px;">● 減/乘/除 法須加「減」「乘」「除」加數字<br>
+                        <span style="color: var(--text-secondary); font-size: 0.9em;">例「減150 乘200 除300」</span>
+                    </p>
+                    <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
                 </div>
             </div>
         </main>
@@ -398,14 +403,13 @@
             isCommand(text) {
                 if (!text) return false;
                 const lower = text.toLowerCase();
-                return text.includes('清除') || text.includes('全清') || text.includes('歸零') || text.includes('清楚') || text.includes('歸0') ||
+                return text.includes('清除') || text.includes('全清') || text.includes('歸零') || text.includes('清楚') || text.includes('歸0') || text.includes('幫我歸零') ||
                     text.includes('總共') || text.includes('多少') || text.includes('結算') || text.includes('買單') || text.includes('此單') ||
                     text.includes('刪除') || lower.includes('delete');
             }
 
             processSpeechInput(text) {
                 let cleanText = text.trim();
-                cleanText = cleanText.replace(/,/g, '');
                 if (!cleanText) return;
 
                 // Command: Delete
@@ -415,7 +419,7 @@
                 }
 
                 // Command: Clear All
-                if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零') || cleanText.includes('清楚') || cleanText.includes('歸0')) {
+                if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零') || cleanText.includes('清楚') || cleanText.includes('歸0') || cleanText.includes('幫我歸零')) {
                     this.clearAllEntries();
                     return;
                 }
@@ -426,35 +430,112 @@
                     return;
                 }
 
-                // Feature: Multiplier "3個300" -> "300 300 300"
-                cleanText = cleanText.replace(/([0-9零一二兩三四五六七八九十]+)\s*[個个]\s*([0-9零一二兩三四五六七八九十百千萬]+)/g, (match, qtyStr, amountStr) => {
-                    const qty = this.parseNumber(qtyStr);
-                    if (!isNaN(qty) && qty > 0 && qty <= 50) {
-                        return Array(qty).fill(amountStr).join(' ');
-                    }
-                    return match;
-                });
+                // --- Arithmetic Pre-processing ---
+                // Replace "減", "扣掉" with " - "
+                // Replace "乘" with " * "
+                // Replace "除" with " / "
+                // Add spaces to buffer operators
+                cleanText = cleanText.replace(/減|扣掉/g, ' - ');
+                cleanText = cleanText.replace(/乘/g, ' * ');
+                cleanText = cleanText.replace(/除/g, ' / ');
 
-                const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.、]+/);
+                // Remove commas
+                cleanText = cleanText.replace(/,/g, '');
+
+                const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.、\-\*\/\+]+/);
 
                 let addedCount = 0;
+                let bufferExpression = [];
+
+                const flushBuffer = () => {
+                    if (bufferExpression.length > 0) {
+                        const result = this.evaluateExpression(bufferExpression);
+                        if (result !== null && !isNaN(result)) {
+                            this.addEntry(result);
+                            addedCount++;
+                        }
+                        bufferExpression = [];
+                    }
+                };
+
                 tokens.forEach(token => {
+                    token = token.trim();
                     if (!token) return;
+
+                    // If token matches operator
+                    if (['-', '*', '/'].includes(token)) {
+                        bufferExpression.push(token);
+                        return;
+                    }
+
+                    // Attempt number parse
                     let val = this.parseNumber(token);
+
+                    // If valid number
                     if (!isNaN(val)) {
-                        this.entries.push({
-                            id: Date.now() + Math.random(),
-                            value: val,
-                            timestamp: new Date()
-                        });
-                        addedCount++;
+                        // Check if previous token was an operator, OR if we are building an expression
+                        // But wait, split might separate "100" and "*" into ["100", "*"]
+                        // So we just push to buffer
+                        bufferExpression.push(val);
+                    } else {
+                        // If invalid (e.g. noise), flush previous buffer
+                        flushBuffer();
                     }
                 });
+
+                // Flush remaining
+                flushBuffer();
 
                 if (addedCount > 0) {
                     this.render();
                     if (navigator.vibrate) navigator.vibrate(50);
                 }
+            }
+
+            evaluateExpression(tokens) {
+                if (tokens.length === 0) return null;
+
+                // If single number, return it
+                if (tokens.length === 1 && typeof tokens[0] === 'number') {
+                    return tokens[0];
+                }
+
+                // Simple parser for Left-to-Right evaluation with Operator Precedence?
+                // Or just straight evaluation? User said "1000 乘 0.03".
+                // User also said "減 150".
+
+                // Handle leading negative: ["-", 150] -> -150
+                if (tokens[0] === '-' && tokens.length === 2 && typeof tokens[1] === 'number') {
+                    return -tokens[1];
+                }
+
+                // If complex expression, let's join and use a safer eval or manual calc
+                // Since tokens are now [Number, Operator, Number...]
+                // We'll iterate.
+
+                try {
+                    // Quick and dirty precedence handling by doing mul/div first?
+                    // Let's do a simple pass. 
+                    // 1. Convert to string "1000 * 0.03"
+                    // 2. Eval (safe here because tokens are strictly Numbers or known Operators)
+                    const expr = tokens.join(' ');
+                    // Security check: expr should only contain digits, ., -, *, /, space
+                    if (!/^[0-9\.\s\-\*\/]+$/.test(expr)) return null;
+
+                    // Use Function constructor for safer eval
+                    return new Function('return ' + expr)();
+                } catch (e) {
+                    console.error("Math error", e);
+                    return null;
+                }
+            }
+
+            addEntry(val) {
+                this.entries.push({
+                    id: Date.now() + Math.random(),
+                    value: val,
+                    timestamp: new Date()
+                });
             }
 
             parseNumber(str) {
@@ -558,9 +639,14 @@
                 if (this.entries.length === 0) {
                     this.entriesList.innerHTML = `
                         <div class="empty-state">
-                            <p>請按開始說話<br>「一百五 200 300」</p>
-                            <div class="commands-hint">
-                                <span>提示：可說出多個數字</span>
+                           <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
+                                <p style="margin-bottom: 8px;">● 請按開始說話相加只需喊數字<br>
+                                    <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
+                                </p>
+                                <p style="margin-bottom: 8px;">● 減/乘/除 法須加「減」「乘」「除」加數字<br>
+                                    <span style="color: var(--text-secondary); font-size: 0.9em;">例「減150 乘200 除300」</span>
+                                </p>
+                                <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
                             </div>
                         </div>
                     `;
