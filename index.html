@@ -25,14 +25,6 @@
             </svg>
         </button>
 
-        <header>
-            <div class="total-display">
-                <span class="currency">NT$</span>
-                <span class="amount" id="total-amount">0</span>
-            </div>
-            <div class="total-label">總計 (0 筆)</div>
-        </header>
-
         <main id="entries-list" class="calc-list-container">
             <!-- Entries will be injected here -->
             <div class="empty-state">
@@ -47,53 +39,65 @@
         <div id="status-indicator" class="status-pill">點擊麥克風</div>
 
         <div class="controls-area">
-            <div class="action-buttons">
-                <!-- Clear All Button -->
-                <button id="btn-clear-all" class="secondary-btn" aria-label="全清">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6h18"></path>
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    </svg>
-                    <span>全清</span>
-                </button>
+            <div class="app-controls">
+                <!-- Top Row: Total & Clear -->
+                <div class="total-display-area">
+                    <button id="btn-clear-all" class="status-badge"
+                        style="background: white; color: var(--primary-color); border: none; font-weight: bold; display: flex; align-items: center; gap: 4px; padding: 6px 16px; cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                        全清
+                    </button>
 
-                <!-- Summary Button -->
-                <button id="btn-summary" class="secondary-btn" aria-label="結算">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                    <span>結算</span>
-                </button>
-            </div>
-
-            <!-- Mic Button -->
-            <button id="mic-btn" class="mic-button" aria-label="開始/停止 錄音">
-                <div class="mic-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                    </svg>
+                    <div style="text-align: right;">
+                        <div class="total-label">總計 (0 筆)</div>
+                        <div class="total-amount">
+                            <span style="font-size: 1rem; vertical-align: middle;">NT$</span>
+                            <span id="total-amount">0</span>
+                        </div>
+                    </div>
                 </div>
-            </button>
 
-            <div class="action-buttons right">
-                <!-- Delete Last Button -->
-                <button id="btn-delete" class="secondary-btn" aria-label="刪除一筆">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
-                        <line x1="18" y1="9" x2="12" y2="15"></line>
-                        <line x1="12" y1="9" x2="18" y2="15"></line>
-                    </svg>
-                    <span>刪除</span>
-                </button>
+                <!-- Bottom Row: Controls -->
+                <div class="controls-row">
+                    <button id="btn-delete" class="secondary-btn btn-delete" aria-label="刪除一筆">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                            <line x1="18" y1="9" x2="12" y2="15"></line>
+                            <line x1="12" y1="9" x2="18" y2="15"></line>
+                        </svg>
+                        <span>刪除</span>
+                    </button>
+
+                    <button id="mic-btn" class="mic-button" aria-label="開始/停止 錄音">
+                        <div class="ripple-ring delay-1"></div>
+                        <div class="ripple-ring"></div>
+                        <div class="mic-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </div>
+                    </button>
+
+                    <button id="btn-summary" class="secondary-btn btn-summary" aria-label="結算">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        <span>結算</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
