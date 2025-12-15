@@ -951,7 +951,6 @@
                     return parseFloat(str);
                 }
 
-                // If mixed or Chinese
                 const map = {
                     '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
                     '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
@@ -970,44 +969,61 @@
                     if (/^[0-9]+$/.test(integerPart)) {
                         val = parseFloat(integerPart);
                     } else {
-                        // Chinese parsing for integer
-                        let bucket = 0;
-                        let currentDigitStr = '';
+                        // Check if it contains any multipliers (十,百,千,萬)
+                        const hasMultiplier = /[十百千萬]/.test(integerPart);
 
-                        for (let i = 0; i < integerPart.length; i++) {
-                            const char = integerPart[i];
-
-                            if (/[0-9]/.test(char)) {
-                                currentDigitStr += char;
-                                continue;
+                        if (!hasMultiplier) {
+                            // Digit-by-Digit Parsing (e.g. "六九" -> 69)
+                            let digitStr = '';
+                            for (let i = 0; i < integerPart.length; i++) {
+                                const char = integerPart[i];
+                                if (/[0-9]/.test(char)) {
+                                    digitStr += char;
+                                } else if (map[char] !== undefined) {
+                                    digitStr += map[char];
+                                }
                             }
+                            if (digitStr) val = parseFloat(digitStr);
+                        } else {
+                            // Standard Chinese Parsing (e.g. "六十九" -> 69)
+                            let bucket = 0;
+                            let currentDigitStr = '';
 
+                            for (let i = 0; i < integerPart.length; i++) {
+                                const char = integerPart[i];
+
+                                if (/[0-9]/.test(char)) {
+                                    currentDigitStr += char;
+                                    continue;
+                                }
+
+                                if (currentDigitStr) {
+                                    bucket = parseFloat(currentDigitStr);
+                                    currentDigitStr = '';
+                                }
+
+                                const num = map[char];
+                                if (num === undefined) continue;
+
+                                if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
+                                    if (bucket === 0 && char === '十') bucket = 1;
+
+                                    if (num === 10000) {
+                                        val = (val + bucket) * 10000;
+                                        bucket = 0;
+                                    } else {
+                                        val += bucket * num;
+                                        bucket = 0;
+                                    }
+                                } else {
+                                    bucket = num;
+                                }
+                            }
                             if (currentDigitStr) {
                                 bucket = parseFloat(currentDigitStr);
-                                currentDigitStr = '';
                             }
-
-                            const num = map[char];
-                            if (num === undefined) continue;
-
-                            if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
-                                if (bucket === 0 && char === '十') bucket = 1;
-
-                                if (num === 10000) {
-                                    val = (val + bucket) * 10000;
-                                    bucket = 0;
-                                } else {
-                                    val += bucket * num;
-                                    bucket = 0;
-                                }
-                            } else {
-                                bucket = num;
-                            }
+                            val += bucket;
                         }
-                        if (currentDigitStr) {
-                            bucket = parseFloat(currentDigitStr);
-                        }
-                        val += bucket;
                     }
                 }
 
