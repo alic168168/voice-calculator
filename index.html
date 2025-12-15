@@ -242,29 +242,37 @@
         class VoiceCalculator {
             constructor() {
                 this.entries = [];
-                this.isListening = false;
                 this.recognition = null;
-                this.currentOperator = '+'; // Default operator
+                this.isListening = false;
+                this.finalTranscript = '';
+                this.silenceTimer = null;
+                this.autoStopMinutes = 3; // Default 3 mins
+                this.lastSpeechTime = Date.now();
+                this.inactivityCheckInterval = null;
+                this.entriesList = document.getElementById('entries-list');
+                this.micBtn = document.getElementById('mic-btn');
+                this.statusIndicator = document.getElementById('status-indicator');
+                this.totalAmountEl = document.getElementById('total-amount');
+                this.modalTotal = document.getElementById('modal-total');
+                this.modalCount = document.getElementById('modal-count');
+                this.settingsBtn = document.getElementById('btn-settings');
+                this.summaryModal = document.getElementById('summary-modal');
 
-                // Timers
+                // Arithmetic Logic State
+                this.currentOperator = '+'; // Default mode
+                this.operatorButtons = document.querySelectorAll('.icon-btn[data-op]');
+
+                // Wake Lock
+                this.wakeLock = null;
+
+                // Timers (moved from original position, but kept for clarity if needed later)
                 this.transcriptTimeout = null;
                 this.forceFinalizeTimer = null;
                 this.restartTimer = null;
                 this.inactivityTimer = null; // Auto-stop timer
 
-                // Config
-                this.autoStopMinutes = 3; // Default 3 mins
-
-                // DOM Elements
-                this.statusIndicator = document.getElementById('status-indicator');
-                this.settingsBtn = document.getElementById('btn-settings');
-                this.entriesList = document.getElementById('entries-list');
-                this.totalAmountEl = document.getElementById('total-amount');
+                // DOM Elements (remaining from original)
                 this.totalAreaLabel = document.querySelector('.total-label');
-                this.micBtn = document.getElementById('mic-btn');
-                this.summaryModal = document.getElementById('summary-modal');
-                this.modalCount = document.getElementById('modal-count');
-                this.modalTotal = document.getElementById('modal-total');
                 this.closeModalBtn = document.getElementById('close-modal-btn');
                 this.liveTranscript = document.getElementById('live-transcript');
 
@@ -274,8 +282,6 @@
                 this.btnClear = document.getElementById('btn-clear-all');
 
                 this.initSpeechRecognition();
-                this.initListeners();
-                this.initOperatorButtons(); // New
                 this.render();
                 this.updateOperatorUI(); // Set initial active state and hint
             }
@@ -427,6 +433,29 @@
                 }
             }
 
+            async initWakeLock() {
+                if ('wakeLock' in navigator) {
+                    try {
+                        this.wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('Wake Lock is active!');
+
+                        this.wakeLock.addEventListener('release', () => {
+                            console.log('Wake Lock released');
+                        });
+
+                        // Re-acquire on visibility change
+                        document.addEventListener('visibilitychange', async () => {
+                            if (this.wakeLock !== null && document.visibilityState === 'visible') {
+                                this.wakeLock = await navigator.wakeLock.request('screen');
+                                console.log('Wake Lock re-acquired');
+                            }
+                        });
+                    } catch (err) {
+                        console.error(`${err.name}, ${err.message}`);
+                    }
+                }
+            }
+
             initListeners() {
                 // Settings Button Logic
                 if (this.settingsBtn) {
@@ -560,6 +589,17 @@
                     this.showSummary();
                     return;
                 }
+
+                // --- Batch Input Pre-processing (Quantifiers) ---
+                // Pattern: "3個100" -> "100 100 100"
+                // Logic: Recursively replace ANY pattern of "N个M" with M repeated N times
+                cleanText = cleanText.replace(/(\d+)\s*[個顆只條張]\s*(\d+)/g, (match, count, value) => {
+                    const n = parseInt(count);
+                    if (n > 0 && n <= 50) { // Limit to reasonable count to prevent crashes
+                        return Array(n).fill(value).join(' ');
+                    }
+                    return match;
+                });
 
                 // --- Arithmetic Pre-processing ---
                 // We keep the old normalization just in case, but we prioritize the UI operator
