@@ -115,9 +115,9 @@
                             全清
                         </button>
                         <!-- Larger x / buttons -->
-                        <button class="icon-btn sm-btn" data-op="*" aria-label="乘法"
+                        <button class="icon-btn sm-btn op-contrast" data-op="*" aria-label="乘法"
                             style="width: 38px; height: 38px; font-size: 1.2rem;">×</button>
-                        <button class="icon-btn sm-btn" data-op="/" aria-label="除法"
+                        <button class="icon-btn sm-btn op-contrast" data-op="/" aria-label="除法"
                             style="width: 38px; height: 38px; font-size: 1.2rem;">÷</button>
                     </div>
 
@@ -713,136 +713,138 @@
                 this.render();
                 this.updateOperatorUI(); // Ensure UI reflects state
             }
-            // If pure numbers/dots (e.g. "0.03"), parse directly
-            if(/^[0-9\.]+$/.test(str)) {
-            return parseFloat(str);
-        }
 
-        // If mixed or Chinese
-        const map = {
-            '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
-            '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
-            '百': 100, '千': 1000, '萬': 10000
-        };
+            parseNumber(str) {
+                // If pure numbers/dots (e.g. "0.03"), parse directly
+                if (/^[0-9\.]+$/.test(str)) {
+                    return parseFloat(str);
+                }
 
-        // Split into integer part and decimal part if "." exists
-        const parts = str.split('.');
-        const integerPart = parts[0];
-        const decimalPart = parts[1];
+                // If mixed or Chinese
+                const map = {
+                    '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
+                    '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+                    '百': 100, '千': 1000, '萬': 10000
+                };
 
-        let val = 0;
+                // Split into integer part and decimal part if "." exists
+                const parts = str.split('.');
+                const integerPart = parts[0];
+                const decimalPart = parts[1];
 
-        // Parse Integer Part
-        if (integerPart) {
-            if (/^[0-9]+$/.test(integerPart)) {
-                val = parseFloat(integerPart);
-            } else {
-                // Chinese parsing for integer
-                let bucket = 0;
-                let currentDigitStr = '';
+                let val = 0;
 
-                for (let i = 0; i < integerPart.length; i++) {
-                    const char = integerPart[i];
-
-                    if (/[0-9]/.test(char)) {
-                        currentDigitStr += char;
-                        continue;
-                    }
-
-                    if (currentDigitStr) {
-                        bucket = parseFloat(currentDigitStr);
-                        currentDigitStr = '';
-                    }
-
-                    const num = map[char];
-                    if (num === undefined) continue;
-
-                    if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
-                        if (bucket === 0 && char === '十') bucket = 1;
-
-                        if (num === 10000) {
-                            val = (val + bucket) * 10000;
-                            bucket = 0;
-                        } else {
-                            val += bucket * num;
-                            bucket = 0;
-                        }
+                // Parse Integer Part
+                if (integerPart) {
+                    if (/^[0-9]+$/.test(integerPart)) {
+                        val = parseFloat(integerPart);
                     } else {
-                        bucket = num;
+                        // Chinese parsing for integer
+                        let bucket = 0;
+                        let currentDigitStr = '';
+
+                        for (let i = 0; i < integerPart.length; i++) {
+                            const char = integerPart[i];
+
+                            if (/[0-9]/.test(char)) {
+                                currentDigitStr += char;
+                                continue;
+                            }
+
+                            if (currentDigitStr) {
+                                bucket = parseFloat(currentDigitStr);
+                                currentDigitStr = '';
+                            }
+
+                            const num = map[char];
+                            if (num === undefined) continue;
+
+                            if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
+                                if (bucket === 0 && char === '十') bucket = 1;
+
+                                if (num === 10000) {
+                                    val = (val + bucket) * 10000;
+                                    bucket = 0;
+                                } else {
+                                    val += bucket * num;
+                                    bucket = 0;
+                                }
+                            } else {
+                                bucket = num;
+                            }
+                        }
+                        if (currentDigitStr) {
+                            bucket = parseFloat(currentDigitStr);
+                        }
+                        val += bucket;
                     }
                 }
-                if (currentDigitStr) {
-                    bucket = parseFloat(currentDigitStr);
+
+                // Parse Decimal Part (if exists)
+                if (decimalPart) {
+                    // Chinese decimal reading is usually digit-by-digit: "零點零三" -> 0 . 0 3
+                    let decimalValStr = '';
+                    for (let i = 0; i < decimalPart.length; i++) {
+                        const char = decimalPart[i];
+                        if (/[0-9]/.test(char)) {
+                            decimalValStr += char;
+                        } else if (map[char] !== undefined && map[char] < 10) {
+                            decimalValStr += map[char];
+                        }
+                    }
+                    if (decimalValStr) {
+                        val += parseFloat(`0.${decimalValStr}`);
+                    }
                 }
-                val += bucket;
-            }
-        }
 
-        // Parse Decimal Part (if exists)
-        if (decimalPart) {
-            // Chinese decimal reading is usually digit-by-digit: "零點零三" -> 0 . 0 3
-            let decimalValStr = '';
-            for (let i = 0; i < decimalPart.length; i++) {
-                const char = decimalPart[i];
-                if (/[0-9]/.test(char)) {
-                    decimalValStr += char;
-                } else if (map[char] !== undefined && map[char] < 10) {
-                    decimalValStr += map[char];
+                return val === 0 && !str.includes('零') && parseFloat(str) !== 0 ? NaN : val;
+            }
+
+            deleteLastEntry() {
+                if (this.entries.length > 0) {
+                    const removed = this.entries.pop();
+                    this.render();
+                    this.showTranscript(`已刪除 ${removed.value}`);
+                } else {
+                    this.showTranscript('無資料');
                 }
             }
-            if (decimalValStr) {
-                val += parseFloat(`0.${decimalValStr}`);
+
+            clearAllEntries() {
+                if (this.entries.length > 0) {
+                    this.entries = [];
+                    this.render();
+                    this.showTranscript('已全部清空');
+                    // Two distinct vibrations to confirm clear
+                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+                } else {
+                    this.showTranscript('無資料 (無需清空)');
+                }
             }
-        }
 
-        return val === 0 && !str.includes('零') && parseFloat(str) !== 0 ? NaN : val;
+            showSummary() {
+                this.updateTotal();
+                this.modalCount.textContent = this.entries.length;
+                this.modalTotal.textContent = this.calculateTotal().toLocaleString();
+                this.summaryModal.classList.remove('hidden');
             }
 
-        deleteLastEntry() {
-            if (this.entries.length > 0) {
-                const removed = this.entries.pop();
-                this.render();
-                this.showTranscript(`已刪除 ${removed.value}`);
-            } else {
-                this.showTranscript('無資料');
+            calculateTotal() {
+                return this.entries.reduce((sum, item) => sum + item.value, 0);
             }
-        }
 
-        clearAllEntries() {
-            if (this.entries.length > 0) {
-                this.entries = [];
-                this.render();
-                this.showTranscript('已全部清空');
-                // Two distinct vibrations to confirm clear
-                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-            } else {
-                this.showTranscript('無資料 (無需清空)');
+            updateTotal() {
+                const total = this.calculateTotal();
+                this.totalAmountEl.textContent = total.toLocaleString();
+                this.totalAreaLabel.textContent = `總計 (${this.entries.length} 筆)`;
             }
-        }
 
-        showSummary() {
-            this.updateTotal();
-            this.modalCount.textContent = this.entries.length;
-            this.modalTotal.textContent = this.calculateTotal().toLocaleString();
-            this.summaryModal.classList.remove('hidden');
-        }
+            render() {
+                this.updateTotal();
+                this.entriesList.innerHTML = '';
 
-        calculateTotal() {
-            return this.entries.reduce((sum, item) => sum + item.value, 0);
-        }
-
-        updateTotal() {
-            const total = this.calculateTotal();
-            this.totalAmountEl.textContent = total.toLocaleString();
-            this.totalAreaLabel.textContent = `總計 (${this.entries.length} 筆)`;
-        }
-
-        render() {
-            this.updateTotal();
-            this.entriesList.innerHTML = '';
-
-            if (this.entries.length === 0) {
-                this.entriesList.innerHTML = `
+                if (this.entries.length === 0) {
+                    this.entriesList.innerHTML = `
                         <div class="empty-state">
                             <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
                                 <p style="margin-bottom: 8px;">● 請按開始說話，相加只需喊數字<br>
@@ -854,24 +856,24 @@
                             </div>
                         </div>
                     `;
-                setTimeout(() => this.updateOperatorUI(), 0);
-                return;
-            }
-
-            // Render newest first
-            this.entries.slice().reverse().forEach(entry => {
-                const li = document.createElement('div');
-                li.className = 'entry-item';
-
-                // Display Priority: Label > Explicit Sign > Standard
-                let displayValue;
-                if (entry.label) {
-                    displayValue = entry.label;
-                } else {
-                    displayValue = (entry.value >= 0 ? '' : '') + entry.value.toLocaleString();
+                    setTimeout(() => this.updateOperatorUI(), 0);
+                    return;
                 }
 
-                li.innerHTML = `
+                // Render newest first
+                this.entries.slice().reverse().forEach(entry => {
+                    const li = document.createElement('div');
+                    li.className = 'entry-item';
+
+                    // Display Priority: Label > Explicit Sign > Standard
+                    let displayValue;
+                    if (entry.label) {
+                        displayValue = entry.label;
+                    } else {
+                        displayValue = (entry.value >= 0 ? '' : '') + entry.value.toLocaleString();
+                    }
+
+                    li.innerHTML = `
                         <div class="entry-index">#${this.entries.indexOf(entry) + 1}</div>
                         <div class="entry-value ${entry.value < 0 && !entry.label ? 'negative' : ''}">
                             ${displayValue}
@@ -880,13 +882,13 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
                     `;
-                li.querySelector('.delete-btn').addEventListener('click', () => {
-                    this.entries = this.entries.filter(e => e.id !== entry.id);
-                    this.render();
+                    li.querySelector('.delete-btn').addEventListener('click', () => {
+                        this.entries = this.entries.filter(e => e.id !== entry.id);
+                        this.render();
+                    });
+                    this.entriesList.appendChild(li);
                 });
-                this.entriesList.appendChild(li);
-            });
-        }
+            }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
