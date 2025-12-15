@@ -241,7 +241,10 @@
                 <h3 style="font-size: 0.95rem; color: #aaa; margin-bottom: 12px; font-weight: normal;">iPhone 無法使用麥克風？
                 </h3>
                 <ol style="font-size: 0.85rem; color: #888; padding-left: 20px; line-height: 1.6; margin: 0;">
-                    <li style="margin-bottom: 4px;">點擊網址列左側的 <strong>「大小」</strong> 或 <strong>「Aa」</strong> 圖示</li>
+                    <li style="margin-bottom: 4px;">點擊網址列左側的 <strong>圖示</strong> (通常顯示為 <strong>Aa</strong> 或
+                        <strong>大小</strong>)
+                    </li>
+                    <li style="margin-bottom: 8px; color: #ffab40;">※ 若使用 LINE/FB 開啟，請點選「使用 Safari 開啟」</li>
                     <li style="margin-bottom: 4px;">選擇 <strong>「網站設定」</strong></li>
                     <li style="margin-bottom: 4px;">將 <strong>「麥克風」</strong> 改為 <strong>「允許」</strong></li>
                     <li>重新整理網頁</li>
@@ -258,6 +261,26 @@
                 </ol>
             </div>
         </div>
+    </div>
+
+    <!-- Debug Bar -->
+    <div id="debug-bar" style="
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        width: 100%; 
+        background: rgba(0,0,0,0.8); 
+        color: #0f0; 
+        font-family: monospace; 
+        font-size: 10px; 
+        padding: 4px; 
+        z-index: 9999; 
+        pointer-events: none; 
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis;
+        display: none;">
+        Debug Info...
     </div>
 
     <script>
@@ -371,12 +394,21 @@
 
                     this.recognition.onstart = () => {
                         console.log('Voice Service: Started');
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.style.display = 'block'; db.textContent = '服務啟動...等待聲音'; }
+
                         if (this.isListening) {
                             this.updateUIState(true);
                             if (navigator.vibrate) navigator.vibrate(50);
                             this.resetInactivityTimer();
                         }
                     };
+
+                    // Diagnostic Events
+                    this.recognition.onaudiostart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '偵測到音訊輸入 (Audio Start)'; };
+                    this.recognition.onsoundstart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '偵測到聲音 (Sound Start)'; };
+                    this.recognition.onspeechstart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '偵測到語音 (Speech Start)'; };
+                    this.recognition.onnomatch = (e) => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '無法辨識 (No Match)'; };
 
                     this.recognition.onend = () => {
                         console.log('Voice Service: Ended');
@@ -442,14 +474,25 @@
                     this.recognition.onerror = (event) => {
                         console.log(`Voice Service Error: ${event.error}`);
 
-                        if (['no-speech', 'aborted', 'network'].includes(event.error)) {
+                        // Network error is common on mobile if connection is unstable
+                        if (event.error === 'network') {
+                            this.statusIndicator.textContent = '網路不穩 (需連網)';
+                            this.statusIndicator.style.color = '#ef4444';
                             return;
                         }
+
+                        if (event.error === 'no-speech') {
+                            // Just ignore momentary silence, but maybe show hint
+                            // this.statusIndicator.textContent = '聽不到聲音...'; 
+                            return;
+                        }
+
+                        if (event.error === 'aborted') return;
 
                         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
                             this.isListening = false;
                             this.updateUIState(false);
-                            alert('無法存取麥克風。請確認：\n1. 網址開頭是 https\n2. 已允許瀏覽器使用麥克風');
+                            alert('無法存取麥克風\n請檢查瀏覽器權限或網路連線');
                         } else {
                             this.statusIndicator.textContent = '錯誤: ' + event.error;
                         }
