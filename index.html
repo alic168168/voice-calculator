@@ -300,17 +300,16 @@
                 style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
                 placeholder="例如: 100 200">
 
-            <button id="confirm-input-btn" class="primary-btn" style="width: 100%;">確認輸入</button>
+            <div style="display: flex; gap: 10px;">
+                <button id="next-input-btn" class="primary-btn"
+                    style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
+                    (加入)</button>
+                <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
+            </div>
         </div>
     </div>
 
-    <!-- Debug Bar -->
-    pointer-events: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: none;">
-    </div>
+
 
     <script>
         class VoiceCalculator {
@@ -632,7 +631,8 @@
                 const keyBtn = document.getElementById('btn-keyboard');
                 const closeKeyBtn = document.getElementById('close-keyboard-btn');
                 const inputField = document.getElementById('manual-input-field');
-                const confirmKeyBtn = document.getElementById('confirm-input-btn');
+                const confirmKeyBtn = document.getElementById('next-input-btn'); // Replaced ID
+                const finishKeyBtn = document.getElementById('finish-input-btn');
 
                 if (keyBtn) {
                     keyBtn.addEventListener('click', () => {
@@ -641,13 +641,18 @@
                     });
                 }
 
-                const processManualInput = () => {
+                const processManualInput = (keepOpen = false) => {
                     const text = inputField.value;
                     if (text) {
                         this.processSpeechInput(text);
                         inputField.value = '';
-                        keyModal.classList.add('hidden');
                         if (navigator.vibrate) navigator.vibrate(50);
+                    }
+
+                    if (keepOpen) {
+                        inputField.focus();
+                    } else {
+                        keyModal.classList.add('hidden');
                     }
                 };
 
@@ -655,9 +660,13 @@
                 keyModal.addEventListener('click', (e) => {
                     if (e.target === keyModal) keyModal.classList.add('hidden');
                 });
-                if (confirmKeyBtn) confirmKeyBtn.addEventListener('click', processManualInput);
+
+                // Bindings
+                if (confirmKeyBtn) confirmKeyBtn.addEventListener('click', () => processManualInput(true)); // Next
+                if (finishKeyBtn) finishKeyBtn.addEventListener('click', () => processManualInput(false)); // Finish
+
                 inputField.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') processManualInput();
+                    if (e.key === 'Enter') processManualInput(true); // Enter = Next (Continuous)
                 });
             }
 
