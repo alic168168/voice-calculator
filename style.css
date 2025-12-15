@@ -463,11 +463,35 @@ body {
     justify-content: center;
 }
 
-.xs-btn.active {
+.sm-btn {
+    border-radius: 50%;
+    margin-left: 8px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sm-btn:active {
     transform: scale(1.1);
 }
 
-/* Remove old operator-icons style */
+.op-contrast {
+    background: white !important;
+    color: var(--primary-color) !important;
+    border: 2px solid white !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.op-contrast.active {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* Specific Colors overrides if needed, but op-contrast takes precedence for base style */
 
 .icon-btn {
     width: 48px;

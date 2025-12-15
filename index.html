@@ -59,11 +59,12 @@
         <!-- Header Controls (Settings + Top Ops) -->
         <div class="header-controls"
             style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px;">
-            <!-- Top Operators -->
+            <!-- Top Operators: High Contrast -->
             <div class="top-operator-group" style="display: flex; gap: 12px;">
-                <button class="icon-btn active" data-op="+" aria-label="加法"
-                    style="width: 40px; height: 40px;">＋</button>
-                <button class="icon-btn" data-op="-" aria-label="減法" style="width: 40px; height: 40px;">－</button>
+                <button class="icon-btn op-contrast active" data-op="+" aria-label="加法"
+                    style="width: 42px; height: 42px; font-weight: 800;">＋</button>
+                <button class="icon-btn op-contrast" data-op="-" aria-label="減法"
+                    style="width: 42px; height: 42px; font-weight: 800;">－</button>
             </div>
 
             <!-- Settings -->
@@ -72,7 +73,7 @@
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path
-                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
                     </path>
                 </svg>
             </button>
@@ -113,10 +114,11 @@
                             </svg>
                             全清
                         </button>
-                        <button class="icon-btn xs-btn" data-op="*" aria-label="乘法"
-                            style="width: 32px; height: 32px; font-size: 1rem;">×</button>
-                        <button class="icon-btn xs-btn" data-op="/" aria-label="除法"
-                            style="width: 32px; height: 32px; font-size: 1rem;">÷</button>
+                        <!-- Larger x / buttons -->
+                        <button class="icon-btn sm-btn" data-op="*" aria-label="乘法"
+                            style="width: 38px; height: 38px; font-size: 1.2rem;">×</button>
+                        <button class="icon-btn sm-btn" data-op="/" aria-label="除法"
+                            style="width: 38px; height: 38px; font-size: 1.2rem;">÷</button>
                     </div>
 
                     <div style="text-align: right;">
@@ -128,44 +130,57 @@
                     </div>
                 </div>
 
-                <!-- Controls Actions: Mic Only -->
-                <div class="controls-actions" style="margin-bottom: 2rem;">
-                    <button id="mic-btn" class="mic-button" aria-label="開始/停止 錄音">
-                        <div class="ripple-ring delay-1"></div>
-                        <div class="ripple-ring"></div>
-                        <div class="mic-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                <!-- Unified Bottom Control Row -->
+                <div class="bottom-control-row"
+                    style="display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 0 1rem; margin-top: auto;">
+
+                    <!-- Delete (Left) -->
+                    <div style="flex: 1; display: flex; justify-content: flex-start;">
+                        <button id="btn-delete" class="secondary-btn btn-delete" aria-label="刪除一筆"
+                            style="width: 70px; height: 70px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                                <line x1="12" y1="19" x2="12" y2="23"></line>
-                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                                <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                                <line x1="18" y1="9" x2="12" y2="15"></line>
+                                <line x1="12" y1="9" x2="18" y2="15"></line>
                             </svg>
-                        </div>
-                    </button>
-                </div>
+                            <span>刪除</span>
+                        </button>
+                    </div>
 
-                <!-- Bottom Row: Secondary Controls -->
-                <div class="controls-row">
-                    <button id="btn-delete" class="secondary-btn btn-delete" aria-label="刪除一筆">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
-                            <line x1="18" y1="9" x2="12" y2="15"></line>
-                            <line x1="12" y1="9" x2="18" y2="15"></line>
-                        </svg>
-                        <span>刪除</span>
-                    </button>
+                    <!-- Mic (Center) -->
+                    <div style="flex: 0 0 auto;">
+                        <button id="mic-btn" class="mic-button" aria-label="開始/停止 錄音">
+                            <div class="ripple-ring delay-1"></div>
+                            <div class="ripple-ring"></div>
+                            <div class="mic-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
 
-                    <button id="btn-summary" class="secondary-btn btn-summary" aria-label="結算">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                        <span>結算</span>
-                    </button>
+                    <!-- Summary (Right) -->
+                    <div style="flex: 1; display: flex; justify-content: flex-end;">
+                        <button id="btn-summary" class="secondary-btn btn-summary" aria-label="結算"
+                            style="width: 70px; height: 70px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            <span>結算</span>
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
@@ -569,7 +584,16 @@
                         try {
                             const result = this.evaluateExpression(bufferExpression);
                             if (result !== null && !isNaN(result)) {
-                                this.addEntry(result);
+                                // Determine display label for * and /
+                                let label = null;
+                                if (bufferExpression.length >= 2) {
+                                    const op = bufferExpression[0];
+                                    const val = bufferExpression[bufferExpression.length - 1]; // Approximate
+                                    if (op === '*' && typeof val === 'number') label = `× ${val}`;
+                                    else if (op === '/' && typeof val === 'number') label = `÷ ${val}`;
+                                }
+
+                                this.addEntry(result, label);
                                 addedCount++;
                                 if (debugBar) debugBar.textContent += ` | 結果: ${result}`;
                             } else {
@@ -679,145 +703,146 @@
                 }
             }
 
-            addEntry(val) {
-                this.entries.push({
-                    id: Date.now() + Math.random(),
-                    value: val,
-                    timestamp: new Date()
-                });
-            }
-
-            parseNumber(str) {
-                // If pure numbers/dots (e.g. "0.03"), parse directly
-                if (/^[0-9\.]+$/.test(str)) {
-                    return parseFloat(str);
-                }
-
-                // If mixed or Chinese
-                const map = {
-                    '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
-                    '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
-                    '百': 100, '千': 1000, '萬': 10000
+            addEntry(value, label = null) {
+                const entry = {
+                    id: Date.now(),
+                    value: value,
+                    label: label
                 };
+                this.entries.push(entry);
+                this.render();
+                this.updateOperatorUI(); // Ensure UI reflects state
+            }
+            // If pure numbers/dots (e.g. "0.03"), parse directly
+            if(/^[0-9\.]+$/.test(str)) {
+            return parseFloat(str);
+        }
 
-                // Split into integer part and decimal part if "." exists
-                const parts = str.split('.');
-                const integerPart = parts[0];
-                const decimalPart = parts[1];
+        // If mixed or Chinese
+        const map = {
+            '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
+            '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+            '百': 100, '千': 1000, '萬': 10000
+        };
 
-                let val = 0;
+        // Split into integer part and decimal part if "." exists
+        const parts = str.split('.');
+        const integerPart = parts[0];
+        const decimalPart = parts[1];
 
-                // Parse Integer Part
-                if (integerPart) {
-                    if (/^[0-9]+$/.test(integerPart)) {
-                        val = parseFloat(integerPart);
+        let val = 0;
+
+        // Parse Integer Part
+        if (integerPart) {
+            if (/^[0-9]+$/.test(integerPart)) {
+                val = parseFloat(integerPart);
+            } else {
+                // Chinese parsing for integer
+                let bucket = 0;
+                let currentDigitStr = '';
+
+                for (let i = 0; i < integerPart.length; i++) {
+                    const char = integerPart[i];
+
+                    if (/[0-9]/.test(char)) {
+                        currentDigitStr += char;
+                        continue;
+                    }
+
+                    if (currentDigitStr) {
+                        bucket = parseFloat(currentDigitStr);
+                        currentDigitStr = '';
+                    }
+
+                    const num = map[char];
+                    if (num === undefined) continue;
+
+                    if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
+                        if (bucket === 0 && char === '十') bucket = 1;
+
+                        if (num === 10000) {
+                            val = (val + bucket) * 10000;
+                            bucket = 0;
+                        } else {
+                            val += bucket * num;
+                            bucket = 0;
+                        }
                     } else {
-                        // Chinese parsing for integer
-                        let bucket = 0;
-                        let currentDigitStr = '';
-
-                        for (let i = 0; i < integerPart.length; i++) {
-                            const char = integerPart[i];
-
-                            if (/[0-9]/.test(char)) {
-                                currentDigitStr += char;
-                                continue;
-                            }
-
-                            if (currentDigitStr) {
-                                bucket = parseFloat(currentDigitStr);
-                                currentDigitStr = '';
-                            }
-
-                            const num = map[char];
-                            if (num === undefined) continue;
-
-                            if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
-                                if (bucket === 0 && char === '十') bucket = 1;
-
-                                if (num === 10000) {
-                                    val = (val + bucket) * 10000;
-                                    bucket = 0;
-                                } else {
-                                    val += bucket * num;
-                                    bucket = 0;
-                                }
-                            } else {
-                                bucket = num;
-                            }
-                        }
-                        if (currentDigitStr) {
-                            bucket = parseFloat(currentDigitStr);
-                        }
-                        val += bucket;
+                        bucket = num;
                     }
                 }
-
-                // Parse Decimal Part (if exists)
-                if (decimalPart) {
-                    // Chinese decimal reading is usually digit-by-digit: "零點零三" -> 0 . 0 3
-                    let decimalValStr = '';
-                    for (let i = 0; i < decimalPart.length; i++) {
-                        const char = decimalPart[i];
-                        if (/[0-9]/.test(char)) {
-                            decimalValStr += char;
-                        } else if (map[char] !== undefined && map[char] < 10) {
-                            decimalValStr += map[char];
-                        }
-                    }
-                    if (decimalValStr) {
-                        val += parseFloat(`0.${decimalValStr}`);
-                    }
+                if (currentDigitStr) {
+                    bucket = parseFloat(currentDigitStr);
                 }
-
-                return val === 0 && !str.includes('零') && parseFloat(str) !== 0 ? NaN : val;
+                val += bucket;
             }
+        }
 
-            deleteLastEntry() {
-                if (this.entries.length > 0) {
-                    const removed = this.entries.pop();
-                    this.render();
-                    this.showTranscript(`已刪除 ${removed.value}`);
-                } else {
-                    this.showTranscript('無資料');
+        // Parse Decimal Part (if exists)
+        if (decimalPart) {
+            // Chinese decimal reading is usually digit-by-digit: "零點零三" -> 0 . 0 3
+            let decimalValStr = '';
+            for (let i = 0; i < decimalPart.length; i++) {
+                const char = decimalPart[i];
+                if (/[0-9]/.test(char)) {
+                    decimalValStr += char;
+                } else if (map[char] !== undefined && map[char] < 10) {
+                    decimalValStr += map[char];
                 }
             }
+            if (decimalValStr) {
+                val += parseFloat(`0.${decimalValStr}`);
+            }
+        }
 
-            clearAllEntries() {
-                if (this.entries.length > 0) {
-                    this.entries = [];
-                    this.render();
-                    this.showTranscript('已全部清空');
-                    // Two distinct vibrations to confirm clear
-                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-                } else {
-                    this.showTranscript('無資料 (無需清空)');
-                }
+        return val === 0 && !str.includes('零') && parseFloat(str) !== 0 ? NaN : val;
             }
 
-            showSummary() {
-                this.updateTotal();
-                this.modalCount.textContent = this.entries.length;
-                this.modalTotal.textContent = this.calculateTotal().toLocaleString();
-                this.summaryModal.classList.remove('hidden');
+        deleteLastEntry() {
+            if (this.entries.length > 0) {
+                const removed = this.entries.pop();
+                this.render();
+                this.showTranscript(`已刪除 ${removed.value}`);
+            } else {
+                this.showTranscript('無資料');
             }
+        }
 
-            calculateTotal() {
-                return this.entries.reduce((sum, item) => sum + item.value, 0);
+        clearAllEntries() {
+            if (this.entries.length > 0) {
+                this.entries = [];
+                this.render();
+                this.showTranscript('已全部清空');
+                // Two distinct vibrations to confirm clear
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+            } else {
+                this.showTranscript('無資料 (無需清空)');
             }
+        }
 
-            updateTotal() {
-                const total = this.calculateTotal();
-                this.totalAmountEl.textContent = total.toLocaleString();
-                this.totalAreaLabel.textContent = `總計 (${this.entries.length} 筆)`;
-            }
+        showSummary() {
+            this.updateTotal();
+            this.modalCount.textContent = this.entries.length;
+            this.modalTotal.textContent = this.calculateTotal().toLocaleString();
+            this.summaryModal.classList.remove('hidden');
+        }
 
-            render() {
-                this.updateTotal();
-                this.entriesList.innerHTML = '';
+        calculateTotal() {
+            return this.entries.reduce((sum, item) => sum + item.value, 0);
+        }
 
-                if (this.entries.length === 0) {
-                    this.entriesList.innerHTML = `
+        updateTotal() {
+            const total = this.calculateTotal();
+            this.totalAmountEl.textContent = total.toLocaleString();
+            this.totalAreaLabel.textContent = `總計 (${this.entries.length} 筆)`;
+        }
+
+        render() {
+            this.updateTotal();
+            this.entriesList.innerHTML = '';
+
+            if (this.entries.length === 0) {
+                this.entriesList.innerHTML = `
                         <div class="empty-state">
                             <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
                                 <p style="margin-bottom: 8px;">● 請按開始說話，相加只需喊數字<br>
@@ -829,29 +854,39 @@
                             </div>
                         </div>
                     `;
-                    setTimeout(() => this.updateOperatorUI(), 0);
-                    return;
+                setTimeout(() => this.updateOperatorUI(), 0);
+                return;
+            }
+
+            // Render newest first
+            this.entries.slice().reverse().forEach(entry => {
+                const li = document.createElement('div');
+                li.className = 'entry-item';
+
+                // Display Priority: Label > Explicit Sign > Standard
+                let displayValue;
+                if (entry.label) {
+                    displayValue = entry.label;
+                } else {
+                    displayValue = (entry.value >= 0 ? '' : '') + entry.value.toLocaleString();
                 }
 
-                // Render newest first
-                [...this.entries].reverse().forEach((entry, index) => {
-                    const displayIndex = this.entries.length - index;
-                    const el = document.createElement('div');
-                    el.className = 'entry-item';
-                    el.innerHTML = `
-                        <span class="entry-index">#${displayIndex}</span>
-                        <span class="entry-value">${entry.value.toLocaleString()}</span>
+                li.innerHTML = `
+                        <div class="entry-index">#${this.entries.indexOf(entry) + 1}</div>
+                        <div class="entry-value ${entry.value < 0 && !entry.label ? 'negative' : ''}">
+                            ${displayValue}
+                        </div>
                         <button class="delete-btn" aria-label="刪除">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
                     `;
-                    el.querySelector('.delete-btn').addEventListener('click', () => {
-                        this.entries = this.entries.filter(e => e.id !== entry.id);
-                        this.render();
-                    });
-                    this.entriesList.appendChild(el);
+                li.querySelector('.delete-btn').addEventListener('click', () => {
+                    this.entries = this.entries.filter(e => e.id !== entry.id);
+                    this.render();
                 });
-            }
+                this.entriesList.appendChild(li);
+            });
+        }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
