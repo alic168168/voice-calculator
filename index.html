@@ -137,7 +137,7 @@
                     <!-- Delete (Left) -->
                     <div style="flex: 1; display: flex; justify-content: flex-start; gap: 8px;">
                         <button id="btn-delete" class="secondary-btn btn-delete" aria-label="刪除一筆"
-                            style="width: 70px; height: 70px;">
+                            style="width: 60px; height: 60px; border-radius: 20px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
@@ -145,27 +145,7 @@
                                 <line x1="18" y1="9" x2="12" y2="15"></line>
                                 <line x1="12" y1="9" x2="18" y2="15"></line>
                             </svg>
-                            <span>刪除</span>
-                        </button>
-
-                        <!-- Manual Keyboard Input Button -->
-                        <button id="btn-keyboard" class="secondary-btn" aria-label="鍵盤輸入"
-                            style="width: 70px; height: 70px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
-                                <line x1="6" y1="8" x2="6" y2="8"></line>
-                                <line x1="10" y1="8" x2="10" y2="8"></line>
-                                <line x1="14" y1="8" x2="14" y2="8"></line>
-                                <line x1="18" y1="8" x2="18" y2="8"></line>
-                                <line x1="6" y1="12" x2="6" y2="12"></line>
-                                <line x1="10" y1="12" x2="10" y2="12"></line>
-                                <line x1="14" y1="12" x2="14" y2="12"></line>
-                                <line x1="18" y1="12" x2="18" y2="12"></line>
-                                <line x1="6" y1="16" x2="18" y2="16"></line>
-                            </svg>
-                            <span>鍵盤</span>
+                            <span style="font-size: 0.8rem;">刪除</span>
                         </button>
                     </div>
 
@@ -187,17 +167,38 @@
                         </button>
                     </div>
 
-                    <!-- Summary (Right) -->
-                    <div style="flex: 1; display: flex; justify-content: flex-end;">
+                    <!-- Summary & Keyboard (Right) -->
+                    <div style="flex: 1; display: flex; justify-content: flex-end; gap: 8px;">
+
+                        <!-- Keyboard (Moved here for balance) -->
+                        <button id="btn-keyboard" class="secondary-btn" aria-label="鍵盤輸入"
+                            style="width: 60px; height: 60px; border-radius: 20px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                                <line x1="6" y1="8" x2="6" y2="8"></line>
+                                <line x1="10" y1="8" x2="10" y2="8"></line>
+                                <line x1="14" y1="8" x2="14" y2="8"></line>
+                                <line x1="18" y1="8" x2="18" y2="8"></line>
+                                <line x1="6" y1="12" x2="6" y2="12"></line>
+                                <line x1="10" y1="12" x2="10" y2="12"></line>
+                                <line x1="14" y1="12" x2="14" y2="12"></line>
+                                <line x1="18" y1="12" x2="18" y2="12"></line>
+                                <line x1="6" y1="16" x2="18" y2="16"></line>
+                            </svg>
+                            <span style="font-size: 0.8rem;">鍵盤</span>
+                        </button>
+
                         <button id="btn-summary" class="secondary-btn btn-summary" aria-label="結算"
-                            style="width: 70px; height: 70px;">
+                            style="width: 60px; height: 60px; border-radius: 20px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
                                 <line x1="12" y1="1" x2="12" y2="23"></line>
                                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                             </svg>
-                            <span>結算</span>
+                            <span style="font-size: 0.8rem;">結算</span>
                         </button>
                     </div>
 
@@ -1080,7 +1081,7 @@
                                     <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
                                 </p>
                                 <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
-                                <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v3.4 (鍵盤輔助模式)</p>
+                                <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v3.5 (按鈕間距優化)</p>
                                 <p style="margin-top: 8px; color: #4a90e2; font-weight: bold;">目前模式: <span id="mode-hint">加法 (預設)</span></p>
                             </div>
                         </div>
