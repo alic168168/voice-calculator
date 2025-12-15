@@ -135,7 +135,7 @@
                     style="display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 0 1rem; margin-top: auto;">
 
                     <!-- Delete (Left) -->
-                    <div style="flex: 1; display: flex; justify-content: flex-start;">
+                    <div style="flex: 1; display: flex; justify-content: flex-start; gap: 8px;">
                         <button id="btn-delete" class="secondary-btn btn-delete" aria-label="刪除一筆"
                             style="width: 70px; height: 70px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -146,6 +146,26 @@
                                 <line x1="12" y1="9" x2="18" y2="15"></line>
                             </svg>
                             <span>刪除</span>
+                        </button>
+
+                        <!-- Manual Keyboard Input Button -->
+                        <button id="btn-keyboard" class="secondary-btn" aria-label="鍵盤輸入"
+                            style="width: 70px; height: 70px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                                <line x1="6" y1="8" x2="6" y2="8"></line>
+                                <line x1="10" y1="8" x2="10" y2="8"></line>
+                                <line x1="14" y1="8" x2="14" y2="8"></line>
+                                <line x1="18" y1="8" x2="18" y2="8"></line>
+                                <line x1="6" y1="12" x2="6" y2="12"></line>
+                                <line x1="10" y1="12" x2="10" y2="12"></line>
+                                <line x1="14" y1="12" x2="14" y2="12"></line>
+                                <line x1="18" y1="12" x2="18" y2="12"></line>
+                                <line x1="6" y1="16" x2="18" y2="16"></line>
+                            </svg>
+                            <span>鍵盤</span>
                         </button>
                     </div>
 
@@ -263,24 +283,33 @@
         </div>
     </div>
 
+    <!-- Keyboard Input Modal -->
+    <div id="keyboard-modal" class="modal hidden">
+        <div class="modal-content" style="padding-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
+                <button id="close-keyboard-btn"
+                    style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
+            </div>
+
+            <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
+                請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
+            </p>
+
+            <input type="text" id="manual-input-field"
+                style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
+                placeholder="例如: 100 200">
+
+            <button id="confirm-input-btn" class="primary-btn" style="width: 100%;">確認輸入</button>
+        </div>
+    </div>
+
     <!-- Debug Bar -->
-    <div id="debug-bar" style="
-        position: fixed; 
-        bottom: 0; 
-        left: 0; 
-        width: 100%; 
-        background: rgba(0,0,0,0.8); 
-        color: #0f0; 
-        font-family: monospace; 
-        font-size: 10px; 
-        padding: 4px; 
-        z-index: 9999; 
-        pointer-events: none; 
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis;
-        display: none;">
-        Debug Info...
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: none;">
     </div>
 
     <script>
@@ -492,7 +521,9 @@
                         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
                             this.isListening = false;
                             this.updateUIState(false);
-                            alert('無法存取麥克風\n請檢查瀏覽器權限或網路連線');
+                            alert('⚠️ 無法存取麥克風\n\n系統將自動開啟「麥克風設定」教學，請依照步驟開啟權限。');
+                            const settingsModal = document.getElementById('settings-modal');
+                            if (settingsModal) settingsModal.classList.remove('hidden');
                         } else {
                             this.statusIndicator.textContent = '錯誤: ' + event.error;
                         }
@@ -591,8 +622,42 @@
                 });
 
                 this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
+                this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
                 this.summaryModal.addEventListener('click', (e) => {
                     if (e.target === this.summaryModal) this.summaryModal.classList.add('hidden');
+                });
+
+                // Keyboard Modal Logic
+                const keyModal = document.getElementById('keyboard-modal');
+                const keyBtn = document.getElementById('btn-keyboard');
+                const closeKeyBtn = document.getElementById('close-keyboard-btn');
+                const inputField = document.getElementById('manual-input-field');
+                const confirmKeyBtn = document.getElementById('confirm-input-btn');
+
+                if (keyBtn) {
+                    keyBtn.addEventListener('click', () => {
+                        keyModal.classList.remove('hidden');
+                        setTimeout(() => inputField.focus(), 100);
+                    });
+                }
+
+                const processManualInput = () => {
+                    const text = inputField.value;
+                    if (text) {
+                        this.processSpeechInput(text);
+                        inputField.value = '';
+                        keyModal.classList.add('hidden');
+                        if (navigator.vibrate) navigator.vibrate(50);
+                    }
+                };
+
+                if (closeKeyBtn) closeKeyBtn.addEventListener('click', () => keyModal.classList.add('hidden'));
+                keyModal.addEventListener('click', (e) => {
+                    if (e.target === keyModal) keyModal.classList.add('hidden');
+                });
+                if (confirmKeyBtn) confirmKeyBtn.addEventListener('click', processManualInput);
+                inputField.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') processManualInput();
                 });
             }
 
@@ -1006,7 +1071,7 @@
                                     <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
                                 </p>
                                 <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
-                                <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v3.1 (總金額運算)</p>
+                                <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v3.4 (鍵盤輔助模式)</p>
                                 <p style="margin-top: 8px; color: #4a90e2; font-weight: bold;">目前模式: <span id="mode-hint">加法 (預設)</span></p>
                             </div>
                         </div>
