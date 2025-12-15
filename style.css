@@ -292,7 +292,7 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 30;
-    margin: 0 1rem;
+    margin: 0;
 }
 
 .mic-button:active {
@@ -438,4 +438,82 @@ body {
 .settings-select option {
     background: var(--bg-card);
     color: var(--text-main);
+}
+
+/* Operator Icons */
+/* Operator Icons & Actions Layout */
+.controls-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.xs-btn {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1.1rem !important;
+    border-radius: 50%;
+    margin-left: 8px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.xs-btn.active {
+    transform: scale(1.1);
+}
+
+/* Remove old operator-icons style */
+
+.icon-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.icon-btn.active {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: white;
+    font-weight: 800;
+}
+
+/* Specific Colors for Active State */
+.icon-btn[data-op="+"].active {
+    background: #3b82f6;
+    border-color: #60a5fa;
+}
+
+.icon-btn[data-op="-"].active {
+    background: #ef4444;
+    border-color: #f87171;
+}
+
+.icon-btn[data-op="*"].active {
+    background: #f59e0b;
+    border-color: #fbbf24;
+}
+
+.icon-btn[data-op="/"].active {
+    background: #8b5cf6;
+    border-color: #a78bfa;
 }
