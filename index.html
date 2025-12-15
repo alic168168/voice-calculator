@@ -282,6 +282,11 @@
                 this.btnClear = document.getElementById('btn-clear-all');
 
                 this.initSpeechRecognition();
+                if (this.micBtn) {
+                    this.initListeners();
+                    this.initOperatorButtons();
+                    this.initWakeLock();
+                }
                 this.render();
                 this.updateOperatorUI(); // Set initial active state and hint
             }
@@ -526,6 +531,47 @@
                 });
             }
 
+            initOperatorButtons() {
+                this.operatorButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        // Remove active from all
+                        this.operatorButtons.forEach(b => b.classList.remove('active'));
+                        // Add to clicked
+                        const target = e.currentTarget;
+                        target.classList.add('active');
+                        // Set state
+                        this.currentOperator = target.dataset.op;
+
+                        // Feedback
+                        if (navigator.vibrate) navigator.vibrate(30);
+
+                        // Update UI Text
+                        this.updateOperatorUI();
+                    });
+                });
+            }
+
+            updateOperatorUI() {
+                // Ensure visual sync
+                this.operatorButtons.forEach(btn => {
+                    if (btn.dataset.op === this.currentOperator) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // Update text hint if exists
+                const hint = document.getElementById('mode-hint');
+                if (hint) {
+                    const map = { '+': '加法', '-': '減法', '*': '乘法 (總額)', '/': '除法 (總額)' };
+                    hint.textContent = map[this.currentOperator] || '加法';
+                    hint.style.color = this.currentOperator === '+' ? '#3b82f6' :
+                        this.currentOperator === '-' ? '#ef4444' :
+                            this.currentOperator === '*' ? '#f59e0b' : '#8b5cf6';
+                }
+            }
+
             updateUIState(listening, customText) {
                 if (listening) {
                     this.micBtn.classList.add('listening');
@@ -591,12 +637,16 @@
                 }
 
                 // --- Batch Input Pre-processing (Quantifiers) ---
-                // Pattern: "3個100" -> "100 100 100"
-                // Logic: Recursively replace ANY pattern of "N个M" with M repeated N times
-                cleanText = cleanText.replace(/(\d+)\s*[個顆只條張]\s*(\d+)/g, (match, count, value) => {
-                    const n = parseInt(count);
-                    if (n > 0 && n <= 50) { // Limit to reasonable count to prevent crashes
-                        return Array(n).fill(value).join(' ');
+                // Pattern: "3個100" or "三個100" -> "100 100 100"
+                // Logic: Capture Number (Digit/Chinese) + Quantifier + Number (Digit/Chinese)
+                const quantifierRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)/g;
+                cleanText = cleanText.replace(quantifierRegex, (match, countStr, valueStr) => {
+                    const count = this.parseNumber(countStr);
+                    const value = this.parseNumber(valueStr);
+
+                    if (!isNaN(count) && !isNaN(value) && count > 0 && count <= 50) {
+                        // Return the expanded string (e.g. "100 100 100")
+                        return Array(count).fill(value).join(' ');
                     }
                     return match;
                 });
