@@ -69,6 +69,12 @@
 
             <!-- Right Controls: Keyboard + Settings -->
             <div class="right-controls-group" style="display: flex; gap: 8px;">
+                <!-- Reset System (New) -->
+                <button id="header-reset-btn" class="icon-btn op-contrast" aria-label="重置系統" title="重置系統 (清除快取)"
+                    style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">
+                    ↻
+                </button>
+
                 <!-- Keyboard Input -->
                 <button id="btn-keyboard" class="icon-btn op-contrast" aria-label="鍵盤輸入"
                     style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
@@ -108,7 +114,7 @@
                         <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
                     </p>
                     <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
-                    <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v2.0 (運算面板)</p>
+                    <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v4.0 (智慧修復)</p>
                 </div>
             </div>
         </main>
@@ -274,14 +280,13 @@
                     </p>
                 </div>
                 <button id="save-settings-btn" class="primary-btn">儲存設定</button>
-
-                <!-- Troubleshooting Guide -->
                 <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
                     <h3 style="font-size: 0.95rem; color: #aaa; margin-bottom: 12px; font-weight: normal;">iPhone
                         無法使用麥克風？
                     </h3>
                     <ol style="font-size: 0.85rem; color: #888; padding-left: 20px; line-height: 1.6; margin: 0;">
-                        <p class="step">1. 點擊網址列左側的 <strong class="highlight">圖示</strong> (通常顯示為 <strong>Aa</strong> /
+                        <p class="step">1. 點擊網址列左側的 <strong class="highlight">圖示</strong> (通常顯示為 <strong>Aa</strong>
+                            /
                             <strong>大小</strong> 或 <strong>電腦圖案</strong>)
                         </p>
                         <p class="step warning">※ 若使用 LINE/FB 開啟，請點選「使用 Safari 開啟」</p>
@@ -308,969 +313,980 @@
         <!-- Keyboard Input Modal -->
         <div id="keyboard-modal" class="modal hidden">
             <div class="modal-content" style="padding-top: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
-                    <button id="close-keyboard-btn"
-                        style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
-                </div>
+                <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
+                <button id="close-keyboard-btn"
+                    style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
+                <button id="close-keyboard-btn"
+                    style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
+            </div>
+            <!-- Reset Button Moved to Header -->
 
-                <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
-                    請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
-                </p>
+            <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
+                請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
+            </p>
 
-                <input type="text" id="manual-input-field"
-                    style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
-                    placeholder="例如: 100 200">
+            <input type="text" id="manual-input-field"
+                style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
+                placeholder="例如: 100 200">
 
-                <div style="display: flex; gap: 10px;">
-                    <button id="next-input-btn" class="primary-btn"
-                        style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
-                        (加入)</button>
-                    <button id="finish-input-btn" class="secondary-btn"
-                        style="flex: 1; border: 1px solid #555;">完成</button>
-                </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="next-input-btn" class="primary-btn"
+                    style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
+                    (加入)</button>
+                <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
             </div>
         </div>
+    </div>
 
 
 
-        <script>
-            class VoiceCalculator {
-                constructor() {
-                    this.entries = [];
-                    this.recognition = null;
-                    this.isListening = false;
-                    this.finalTranscript = '';
-                    this.silenceTimer = null;
-                    this.autoStopMinutes = 3; // Default 3 mins
-                    this.silenceThreshold = 400; // User Request: 0.4s (Balanced)
-                    this.recognitionMode = 'continuous'; // 'continuous' or 'single'
-                    this.lastSpeechTime = Date.now();
-                    this.inactivityCheckInterval = null;
-                    this.entriesList = document.getElementById('entries-list');
-                    this.micBtn = document.getElementById('mic-btn');
-                    this.statusIndicator = document.getElementById('status-indicator');
-                    this.totalAmountEl = document.getElementById('total-amount');
-                    this.modalTotal = document.getElementById('modal-total');
-                    this.modalCount = document.getElementById('modal-count');
-                    this.settingsBtn = document.getElementById('btn-settings');
-                    this.summaryModal = document.getElementById('summary-modal');
+    <script>
+        class VoiceCalculator {
+            constructor() {
+                this.entries = [];
+                this.recognition = null;
+                this.isListening = false;
+                this.finalTranscript = '';
+                this.silenceTimer = null;
+                this.autoStopMinutes = 3; // Default 3 mins
+                this.silenceThreshold = 400; // User Request: 0.4s (Balanced)
+                this.recognitionMode = 'continuous'; // 'continuous' or 'single'
+                this.lastSpeechTime = Date.now();
+                this.inactivityCheckInterval = null;
+                this.entriesList = document.getElementById('entries-list');
+                this.micBtn = document.getElementById('mic-btn');
+                this.statusIndicator = document.getElementById('status-indicator');
+                this.totalAmountEl = document.getElementById('total-amount');
+                this.modalTotal = document.getElementById('modal-total');
+                this.modalCount = document.getElementById('modal-count');
+                this.settingsBtn = document.getElementById('btn-settings');
+                this.summaryModal = document.getElementById('summary-modal');
 
-                    // Arithmetic Logic State
-                    this.currentOperator = '+'; // Default mode
-                    this.operatorButtons = document.querySelectorAll('.icon-btn[data-op]');
+                // Arithmetic Logic State
+                this.currentOperator = '+'; // Default mode
+                this.operatorButtons = document.querySelectorAll('.icon-btn[data-op]');
 
-                    // Wake Lock
-                    this.wakeLock = null;
+                // Wake Lock
+                this.wakeLock = null;
 
-                    // Timers (moved from original position, but kept for clarity if needed later)
-                    this.transcriptTimeout = null;
-                    this.forceFinalizeTimer = null;
-                    this.restartTimer = null;
-                    this.inactivityTimer = null; // Auto-stop timer
+                // Timers (moved from original position, but kept for clarity if needed later)
+                this.transcriptTimeout = null;
+                this.forceFinalizeTimer = null;
+                this.restartTimer = null;
+                this.inactivityTimer = null; // Auto-stop timer
 
-                    // DOM Elements (remaining from original)
-                    this.totalAreaLabel = document.querySelector('.total-label');
-                    this.closeModalBtn = document.getElementById('close-modal-btn');
-                    this.liveTranscript = document.getElementById('live-transcript');
+                // DOM Elements (remaining from original)
+                this.totalAreaLabel = document.querySelector('.total-label');
+                this.closeModalBtn = document.getElementById('close-modal-btn');
+                this.liveTranscript = document.getElementById('live-transcript');
 
-                    // Buttons
-                    this.btnDelete = document.getElementById('btn-delete');
-                    this.btnSummary = document.getElementById('btn-summary');
-                    this.btnClear = document.getElementById('btn-clear-all');
+                // Buttons
+                this.btnDelete = document.getElementById('btn-delete');
+                this.btnSummary = document.getElementById('btn-summary');
+                this.btnClear = document.getElementById('btn-clear-all');
 
-                    this.initSpeechRecognition();
-                    if (this.micBtn) {
-                        this.initListeners();
-                        this.initOperatorButtons();
-                        this.initWakeLock();
-                        this.enableWakeLockOnInteraction();
-                    }
-                    this.render();
-                    this.updateOperatorUI(); // Set initial active state and hint
+                this.initSpeechRecognition();
+                if (this.micBtn) {
+                    this.initListeners();
+                    this.initOperatorButtons();
+                    // this.initWakeLock(); -> Moved to Smart Toggle
+                    // this.enableWakeLockOnInteraction(); -> Removed
                 }
+                this.render();
+                this.updateOperatorUI(); // Set initial active state and hint
+            }
 
-                initOperatorButtons() {
-                    // Support both old class (for safety) and new class
-                    const ops = document.querySelectorAll('.operator-btn, .icon-btn[data-op]');
-                    ops.forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            this.currentOperator = btn.dataset.op;
-                            this.updateOperatorUI();
-                            if (navigator.vibrate) navigator.vibrate(30);
-                        });
-                    });
-                }
-
-                updateOperatorUI() {
-                    document.querySelectorAll('.operator-btn, .icon-btn[data-op]').forEach(btn => {
-                        if (btn.dataset.op === this.currentOperator) {
-                            btn.classList.add('active');
-                        } else {
-                            btn.classList.remove('active');
-                        }
-                    });
-
-                    // Update hints
-                    const hint = document.getElementById('mode-hint');
-                    if (hint) {
-                        const textMap = { '+': '加法 (預設)', '-': '減法', '*': '乘法 (以總計乘)', '/': '除法 (以總計除)' };
-                        hint.textContent = textMap[this.currentOperator] || '加法';
-                    }
-                }
-
-                resetInactivityTimer() {
-                    if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
-
-                    if (this.isListening) {
-                        const ms = this.autoStopMinutes * 60 * 1000;
-                        this.inactivityTimer = setTimeout(() => {
-                            console.log('Inactivity timeout reached.');
-                            this.isListening = false;
-                            this.recognition.stop();
-                            this.updateUIState(false);
-                            this.statusIndicator.textContent = '閒置已關閉';
-                            if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
-                        }, ms);
-                    }
-                }
-
-                initSpeechRecognition() {
-                    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                        this.recognition = new SpeechRecognition();
-
-                        // Protocol Check (Crucial for Mobile & Local File)
-                        if (location.protocol === 'file:') {
-                            setTimeout(() => {
-                                if (confirm('⚠️【警告：檔案模式不穩定】\n\n您直接開啟了 index.html (File 模式)。\nGoogle Chrome 在此模式下會頻繁切斷麥克風。\n\n強烈建議：\n請執行資料夾內的「start_server.bat」來啟動，\n才能保證麥克風穩定不斷線。')) {
-                                    // optional action
-                                }
-                                this.statusIndicator.textContent = '檔案模式 (易斷線)';
-                                this.statusIndicator.style.color = 'orange';
-                                const db = document.getElementById('debug-bar');
-                                if (db) db.textContent = '❌ 嚴重警告：File 模式下麥克風極不穩定，請改用 Server 啟動';
-                            }, 500);
-                        } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                            setTimeout(() => {
-                                alert('⛔【麥克風受限注意】⛔\n\n您似乎正在使用「非安全連線 (HTTP)」開啟此網頁。\n\n手機瀏覽器通常會強制封鎖麥克風。\n請嘗試：\n1. 使用 localhost (本機)\n2. 設定 HTTPS Server\n3. 使用鍵盤輸入模式');
-                                this.statusIndicator.textContent = '連線不安全 (麥克風受限)';
-                                this.statusIndicator.style.color = 'orange';
-                            }, 500);
-                        }
-
-                        // Mode Configuration
-                        if (this.recognitionMode === 'single') {
-                            this.recognition.continuous = false;
-                        } else {
-                            this.recognition.continuous = true;
-                        }
-
-                        this.recognition.lang = 'cmn-Hant-TW';
-                        this.recognition.interimResults = true;
-                        this.recognition.maxAlternatives = 1;
-
-                        this.recognition.onstart = () => {
-                            console.log('Voice Service: Started');
-                            const db = document.getElementById('debug-bar');
-                            if (db) { db.textContent = '🟢 服務啟動 (Listening)...'; db.style.color = '#0f0'; }
-
-                            if (this.isListening) {
-                                this.updateUIState(true);
-                                if (navigator.vibrate) navigator.vibrate(50);
-                                this.resetInactivityTimer();
-                            }
-                        };
-
-                        // Diagnostic Events
-                        this.recognition.onaudiostart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '🎵 音訊輸入開始 (Audio Start)'; };
-                        this.recognition.onsoundstart = () => {
-                            const db = document.getElementById('debug-bar');
-                            if (db) { db.textContent = '🔊 偵測到聲音 (Sound Detected)'; db.style.color = '#fff'; }
-                        };
-                        this.recognition.onspeechstart = () => {
-                            const db = document.getElementById('debug-bar');
-                            if (db) { db.textContent = '🗣️ 偵測到語音 (Speech Start)'; db.style.color = 'yellow'; }
-                        };
-                        this.recognition.onnomatch = (e) => {
-                            if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '❓ 無法辨識 (No Match)';
-                        };
-
-                        this.recognition.onend = () => {
-                            const db = document.getElementById('debug-bar');
-                            if (db) { db.textContent = '🔴 服務停止 (Enter)'; db.style.color = '#aaa'; }
-                            console.log('Voice Service: Ended');
-                            // Vital: If we are supposed to be listening, restart immediately.
-                            if (this.isListening) {
-                                console.log('Voice Service: Auto-restarting...');
-
-                                clearTimeout(this.restartTimer);
-
-                                // Loop Protection
-                                const now = Date.now();
-                                if (!this.restartTimestamps) this.restartTimestamps = [];
-                                this.restartTimestamps.push(now);
-                                // Keep only last 2 seconds
-                                this.restartTimestamps = this.restartTimestamps.filter(t => now - t < 2000);
-
-                                if (this.restartTimestamps.length > 5) {
-                                    console.error("Refresh Loop Detected");
-                                    this.isListening = false;
-                                    this.updateUIState(false);
-                                    alert('⚠️ 麥克風頻繁斷線\n\n瀏覽器似乎阻擋了麥克風。請嘗試：\n1. 重新整理網頁\n2. 檢查網址列是否允許權限\n3. 改用 start_server.bat 啟動');
-                                    return;
-                                }
-
-                                this.restartTimer = setTimeout(() => {
-                                    try {
-                                        if (this.isListening) this.recognition.start();
-                                    } catch (e) {
-                                        console.error("Restart failed", e);
-                                    }
-                                }, 50);
-                            } else {
-                                this.updateUIState(false);
-                            }
-                        };
-
-                        this.recognition.onresult = (event) => {
-                            this.resetInactivityTimer();
-                            clearTimeout(this.forceFinalizeTimer);
-
-                            let finalTranscript = '';
-                            let interimTranscript = '';
-
-                            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                                if (event.results[i].isFinal) {
-                                    finalTranscript += event.results[i][0].transcript;
-                                } else {
-                                    interimTranscript += event.results[i][0].transcript;
-                                }
-                            }
-
-                            if (finalTranscript) {
-                                this.showTranscript(finalTranscript);
-                                this.processSpeechInput(finalTranscript);
-                            }
-
-                            if (interimTranscript) {
-                                this.showTranscript(interimTranscript);
-
-                                // Eager Command Execution:
-                                // If the user says a command, execute it immediately without waiting for finalization.
-                                if (this.isCommand(interimTranscript)) {
-                                    console.log(`Eager Command Triggered: ${interimTranscript}`);
-                                    this.processSpeechInput(interimTranscript);
-
-                                    // Small delay before aborting to ensure UI updates are seen
-                                    setTimeout(() => this.recognition.abort(), 100);
-                                    return;
-                                }
-
-                                // Force finalize logic (Universal 400ms)
-                                // User request: Revert to 0.4s but add visual speed
-                                this.forceFinalizeTimer = setTimeout(() => {
-                                    // Instant Feedback (Psychological Speedup)
-                                    this.statusIndicator.textContent = '⚡ 計算中...';
-                                    this.statusIndicator.style.color = '#3b82f6'; // Blue
-                                    if (navigator.vibrate) navigator.vibrate(10); // Light tick
-
-                                    console.log(`Force Finalizing: ${interimTranscript}`);
-                                    if (this.isListening) this.recognition.stop();
-                                }, 400);
-                            }
-                        };
-
-                        this.recognition.onerror = (event) => {
-                            console.log(`Voice Service Error: ${event.error}`);
-                            const db = document.getElementById('debug-bar');
-
-                            // Show error clearly
-                            if (db) {
-                                // Translate common errors
-                                const errMap = {
-                                    'no-speech': '沒聽到聲音 (No Speech)',
-                                    'network': '網路錯誤 (Network)',
-                                    'not-allowed': '沒權限 (Blocked)',
-                                    'aborted': '已中止 (Aborted)'
-                                };
-                                db.textContent = `❌ 錯誤: ${errMap[event.error] || event.error}`;
-                                db.style.color = '#ef4444';
-                            }
-
-                            // Network error is common on mobile if connection is unstable
-                            if (event.error === 'network') {
-                                this.statusIndicator.textContent = '網路不穩 (需連網)';
-                                this.statusIndicator.style.color = '#ef4444';
-                                return;
-                            }
-
-                            if (event.error === 'no-speech') {
-                                // Ignore, but let debug bar show it
-                                return;
-                            }
-
-                            if (event.error === 'aborted') return;
-
-                            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                                this.isListening = false;
-                                this.updateUIState(false);
-                                alert('⚠️ 無法存取麥克風\n\n系統將自動開啟「麥克風設定」教學，請依照步驟開啟權限。');
-                                const settingsModal = document.getElementById('settings-modal');
-                                if (settingsModal) settingsModal.classList.remove('hidden');
-                            } else {
-                                this.statusIndicator.textContent = '錯誤: ' + event.error;
-                            }
-                        };
-                    } else {
-                        alert('您的瀏覽器不支援語音辨識，請使用 Chrome (Android) 或 Safari (iOS)。');
-                        this.micBtn.disabled = true;
-                    }
-                }
-
-                async initWakeLock() {
-                    if ('wakeLock' in navigator) {
-                        try {
-                            this.wakeLock = await navigator.wakeLock.request('screen');
-                            console.log('Wake Lock is active!');
-
-                            this.wakeLock.addEventListener('release', () => {
-                                console.log('Wake Lock released');
-                            });
-
-                            // Re-acquire on visibility change
-                            document.addEventListener('visibilitychange', async () => {
-                                if (this.wakeLock !== null && document.visibilityState === 'visible') {
-                                    try {
-                                        this.wakeLock = await navigator.wakeLock.request('screen');
-                                        console.log('Wake Lock re-acquired');
-                                    } catch (e) { console.log('Re-acquire failed', e); }
-                                }
-                            });
-                        } catch (err) {
-                            console.error(`${err.name}, ${err.message}`);
-                        }
-                    }
-                }
-
-                enableWakeLockOnInteraction() {
-                    const unlockWakeLock = async () => {
-                        if (!this.wakeLock) {
-                            await this.initWakeLock();
-                            if (this.wakeLock) {
-                                document.removeEventListener('click', unlockWakeLock);
-                                document.removeEventListener('touchstart', unlockWakeLock);
-                            }
-                        }
-                    };
-                    document.addEventListener('click', unlockWakeLock);
-                    document.addEventListener('touchstart', unlockWakeLock);
-                }
-
-                initListeners() {
-                    // Settings Button Logic
-                    if (this.settingsBtn) {
-                        const settingsModal = document.getElementById('settings-modal');
-                        const saveSettingsBtn = document.getElementById('save-settings-btn');
-                        const autoStopSelect = document.getElementById('auto-stop-select');
-                        const recModeSelect = document.getElementById('rec-mode-select');
-
-                        this.settingsBtn.addEventListener('click', () => {
-                            settingsModal.classList.remove('hidden');
-                            autoStopSelect.value = this.autoStopMinutes;
-                            recModeSelect.value = this.recognitionMode;
-                        });
-
-                        saveSettingsBtn.addEventListener('click', () => {
-                            const val = parseInt(autoStopSelect.value);
-                            this.autoStopMinutes = val;
-
-                            const newMode = recModeSelect.value;
-                            if (this.recognitionMode !== newMode) {
-                                this.recognitionMode = newMode;
-                                // Update threshold: Universal 400
-                                this.silenceThreshold = 400;
-
-                                // Restart if running
-                                if (this.isListening) {
-                                    this.isListening = false;
-                                    this.recognition.abort();
-                                    setTimeout(() => this.micBtn.click(), 500); // Re-trigger
-                                }
-                            }
-
-                            settingsModal.classList.add('hidden');
-                            this.showTranscript(`已儲存: ${val}分 / ${newMode === 'single' ? '單句' : '連續'}`);
-                            if (this.isListening) this.resetInactivityTimer();
-                        });
-
-                        settingsModal.addEventListener('click', (e) => {
-                            if (e.target === settingsModal) settingsModal.classList.add('hidden');
-                        });
-                    }
-
-                    this.micBtn.addEventListener('click', () => {
+            initOperatorButtons() {
+                // Support both old class (for safety) and new class
+                const ops = document.querySelectorAll('.operator-btn, .icon-btn[data-op]');
+                ops.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.currentOperator = btn.dataset.op;
+                        this.updateOperatorUI();
                         if (navigator.vibrate) navigator.vibrate(30);
+                    });
+                });
+            }
+
+            updateOperatorUI() {
+                document.querySelectorAll('.operator-btn, .icon-btn[data-op]').forEach(btn => {
+                    if (btn.dataset.op === this.currentOperator) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // Update hints
+                const hint = document.getElementById('mode-hint');
+                if (hint) {
+                    const textMap = { '+': '加法 (預設)', '-': '減法', '*': '乘法 (以總計乘)', '/': '除法 (以總計除)' };
+                    hint.textContent = textMap[this.currentOperator] || '加法';
+                }
+            }
+
+            resetInactivityTimer() {
+                if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
+
+                if (this.isListening) {
+                    const ms = this.autoStopMinutes * 60 * 1000;
+                    this.inactivityTimer = setTimeout(() => {
+                        console.log('Inactivity timeout reached.');
+                        this.isListening = false;
+                        this.recognition.stop();
+                        this.updateUIState(false);
+                        this.statusIndicator.textContent = '閒置已關閉';
+                        if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+                    }, ms);
+                }
+            }
+
+            initSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+
+                    // Protocol Check (Crucial for Mobile & Local File)
+                    if (location.protocol === 'file:') {
+                        setTimeout(() => {
+                            if (confirm('⚠️【警告：檔案模式不穩定】\n\n您直接開啟了 index.html (File 模式)。\nGoogle Chrome 在此模式下會頻繁切斷麥克風。\n\n強烈建議：\n請執行資料夾內的「start_server.bat」來啟動，\n才能保證麥克風穩定不斷線。')) {
+                                // optional action
+                            }
+                            this.statusIndicator.textContent = '檔案模式 (易斷線)';
+                            this.statusIndicator.style.color = 'orange';
+                            const db = document.getElementById('debug-bar');
+                            if (db) db.textContent = '❌ 嚴重警告：File 模式下麥克風極不穩定，請改用 Server 啟動';
+                        }, 500);
+                    } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                        setTimeout(() => {
+                            alert('⛔【麥克風受限注意】⛔\n\n您似乎正在使用「非安全連線 (HTTP)」開啟此網頁。\n\n手機瀏覽器通常會強制封鎖麥克風。\n請嘗試：\n1. 使用 localhost (本機)\n2. 設定 HTTPS Server\n3. 使用鍵盤輸入模式');
+                            this.statusIndicator.textContent = '連線不安全 (麥克風受限)';
+                            this.statusIndicator.style.color = 'orange';
+                        }, 500);
+                    }
+
+                    // Mode Configuration
+                    if (this.recognitionMode === 'single') {
+                        this.recognition.continuous = false;
+                    } else {
+                        this.recognition.continuous = true;
+                    }
+
+                    this.recognition.lang = 'cmn-Hant-TW';
+                    this.recognition.interimResults = true;
+                    this.recognition.maxAlternatives = 1;
+
+                    this.recognition.onstart = () => {
+                        console.log('Voice Service: Started');
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.textContent = '🟢 服務啟動 (Listening)...'; db.style.color = '#0f0'; }
 
                         if (this.isListening) {
-                            // User wants to STOP
-                            this.isListening = false;
-                            this.recognition.stop();
-                            this.updateUIState(false);
-                            if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
-                        } else {
-                            // User wants to START
-                            this.isListening = true;
-                            this.statusIndicator.textContent = '啟動中...';
-                            try {
-                                this.recognition.abort();
-                            } catch (e) { }
+                            this.updateUIState(true);
+                            if (navigator.vibrate) navigator.vibrate(50);
+                            this.resetInactivityTimer();
+                        }
+                    };
 
-                            // Direct start (No timeout) for better mobile compatibility
-                            try {
-                                this.recognition.start();
-                            } catch (e) {
-                                console.error("Start failed", e);
+                    // Diagnostic Events
+                    this.recognition.onaudiostart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '🎵 音訊輸入開始 (Audio Start)'; };
+                    this.recognition.onsoundstart = () => {
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.textContent = '🔊 偵測到聲音 (Sound Detected)'; db.style.color = '#fff'; }
+                    };
+                    this.recognition.onspeechstart = () => {
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.textContent = '🗣️ 偵測到語音 (Speech Start)'; db.style.color = 'yellow'; }
+                    };
+                    this.recognition.onnomatch = (e) => {
+                        if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '❓ 無法辨識 (No Match)';
+                    };
+
+                    this.recognition.onend = () => {
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.textContent = '🔴 服務停止 (Enter)'; db.style.color = '#aaa'; }
+                        console.log('Voice Service: Ended');
+                        // Vital: If we are supposed to be listening, restart immediately.
+                        if (this.isListening) {
+                            console.log('Voice Service: Auto-restarting...');
+
+                            clearTimeout(this.restartTimer);
+
+                            // Loop Protection
+                            const now = Date.now();
+                            if (!this.restartTimestamps) this.restartTimestamps = [];
+                            this.restartTimestamps.push(now);
+                            // Keep only last 2 seconds
+                            this.restartTimestamps = this.restartTimestamps.filter(t => now - t < 2000);
+
+                            if (this.restartTimestamps.length > 5) {
+                                console.error("Refresh Loop Detected");
                                 this.isListening = false;
                                 this.updateUIState(false);
-                                // Only alert if not already started
-                                if (e.message !== "Failed to execute 'start' on 'SpeechRecognition': recognition has already started.") {
-                                    alert('啟動失敗，請重試 (或嘗試重整網頁)');
-                                }
+                                alert('⚠️ 麥克風頻繁斷線\n\n瀏覽器似乎阻擋了麥克風。請嘗試：\n1. 重新整理網頁\n2. 檢查網址列是否允許權限\n3. 改用 start_server.bat 啟動');
+                                return;
                             }
-                        }
-                    });
 
-                    this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
-                    this.btnSummary.addEventListener('click', () => this.showSummary());
-
-                    this.btnClear.addEventListener('click', () => {
-                        if (this.entries.length > 0 && confirm('確定清空所有數字？')) {
-                            this.clearAllEntries();
-                        } else if (this.entries.length === 0) {
-                            this.showTranscript('無資料');
-                        }
-                    });
-
-                    this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
-                    this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
-                    this.summaryModal.addEventListener('click', (e) => {
-                        if (e.target === this.summaryModal) this.summaryModal.classList.add('hidden');
-                    });
-
-                    // Keyboard Modal Logic
-                    const keyModal = document.getElementById('keyboard-modal');
-                    const keyBtn = document.getElementById('btn-keyboard');
-                    const closeKeyBtn = document.getElementById('close-keyboard-btn');
-                    const inputField = document.getElementById('manual-input-field');
-                    const confirmKeyBtn = document.getElementById('next-input-btn'); // Replaced ID
-                    const finishKeyBtn = document.getElementById('finish-input-btn');
-
-                    if (keyBtn) {
-                        keyBtn.addEventListener('click', () => {
-                            keyModal.classList.remove('hidden');
-                            setTimeout(() => inputField.focus(), 100);
-                        });
-                    }
-
-                    const processManualInput = (keepOpen = false) => {
-                        const text = inputField.value;
-                        if (text) {
-                            this.processSpeechInput(text);
-                            inputField.value = '';
-                            if (navigator.vibrate) navigator.vibrate(50);
-                        }
-
-                        if (keepOpen) {
-                            inputField.focus();
+                            this.restartTimer = setTimeout(() => {
+                                try {
+                                    if (this.isListening) this.recognition.start();
+                                } catch (e) {
+                                    console.error("Restart failed", e);
+                                }
+                            }, 50);
                         } else {
-                            keyModal.classList.add('hidden');
-                        }
-                    };
-
-                    if (closeKeyBtn) closeKeyBtn.addEventListener('click', () => keyModal.classList.add('hidden'));
-                    keyModal.addEventListener('click', (e) => {
-                        if (e.target === keyModal) keyModal.classList.add('hidden');
-                    });
-
-                    // Bindings
-                    if (confirmKeyBtn) confirmKeyBtn.addEventListener('click', () => processManualInput(true)); // Next
-                    if (finishKeyBtn) finishKeyBtn.addEventListener('click', () => processManualInput(false)); // Finish
-
-                    inputField.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') processManualInput(true); // Enter = Next (Continuous)
-                    });
-                }
-
-                initOperatorButtons() {
-                    this.operatorButtons.forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            // Remove active from all
-                            this.operatorButtons.forEach(b => b.classList.remove('active'));
-                            // Add to clicked
-                            const target = e.currentTarget;
-                            target.classList.add('active');
-                            // Set state
-                            this.currentOperator = target.dataset.op;
-
-                            // Feedback
-                            if (navigator.vibrate) navigator.vibrate(30);
-
-                            // Update UI Text
-                            this.updateOperatorUI();
-                        });
-                    });
-                }
-
-                updateOperatorUI() {
-                    // Ensure visual sync
-                    this.operatorButtons.forEach(btn => {
-                        if (btn.dataset.op === this.currentOperator) {
-                            btn.classList.add('active');
-                        } else {
-                            btn.classList.remove('active');
-                        }
-                    });
-
-                    // Update text hint if exists
-                    const hint = document.getElementById('mode-hint');
-                    if (hint) {
-                        const map = { '+': '加法', '-': '減法', '*': '乘法 (總額)', '/': '除法 (總額)' };
-                        hint.textContent = map[this.currentOperator] || '加法';
-                        hint.style.color = this.currentOperator === '+' ? '#3b82f6' :
-                            this.currentOperator === '-' ? '#ef4444' :
-                                this.currentOperator === '*' ? '#f59e0b' : '#8b5cf6';
-                    }
-                }
-
-                updateUIState(listening, customText) {
-                    if (listening) {
-                        this.micBtn.classList.add('listening');
-                        this.statusIndicator.textContent = customText || '聆聽中...';
-                        this.statusIndicator.classList.add('listening');
-                    } else {
-                        this.micBtn.classList.remove('listening');
-                        this.statusIndicator.textContent = '系統已更新 (準備就緒)';
-                        setTimeout(() => {
                             this.updateUIState(false);
-                        }, 2000);
-                        this.statusIndicator.classList.remove('listening');
-                        this.hideTranscript();
-                    }
-                }
-
-                showTranscript(text) {
-                    this.liveTranscript.textContent = text;
-                    this.liveTranscript.classList.remove('hidden');
-                    if (this.transcriptTimeout) clearTimeout(this.transcriptTimeout);
-                    this.transcriptTimeout = setTimeout(() => this.hideTranscript(), 2000);
-                }
-
-                hideTranscript() {
-                    this.liveTranscript.classList.add('hidden');
-                }
-
-                isCommand(text) {
-                    if (!text) return false;
-                    const lower = text.toLowerCase();
-                    return text.includes('清除') || text.includes('全清') || text.includes('歸零') || text.includes('清楚') || text.includes('歸0') || text.includes('幫我歸零') ||
-                        text.includes('總共') || text.includes('多少') || text.includes('結算') || text.includes('買單') || text.includes('此單') ||
-                        text.includes('刪除') || lower.includes('delete');
-                }
-
-                processSpeechInput(text) {
-                    let cleanText = text.trim();
-                    cleanText = cleanText.replace(/,/g, '');
-                    if (!cleanText) return;
-
-                    // --- Debug Logging (Raw) ---
-                    const debugBar = document.getElementById('debug-bar');
-                    if (debugBar) {
-                        debugBar.textContent = `聽見: ${cleanText} | 模式: ${this.currentOperator}`;
-                    }
-
-                    // Command: Delete
-                    if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
-                        this.deleteLastEntry();
-                        return;
-                    }
-
-                    // Command: Clear All
-                    if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零') || cleanText.includes('清楚') || cleanText.includes('歸0') || cleanText.includes('幫我歸零')) {
-                        this.clearAllEntries();
-                        return;
-                    }
-
-                    // Command: Summary
-                    if (cleanText.includes('總共') || cleanText.includes('多少') || cleanText.includes('結算') || cleanText.includes('買單') || cleanText.includes('此單')) {
-                        this.showSummary();
-                        return;
-                    }
-
-                    // --- Batch Input Pre-processing (Quantifiers) ---
-                    // Pattern: "3個100" or "三個100" -> "100 100 100"
-                    // Logic: Capture Number (Digit/Chinese) + Quantifier + Number (Digit/Chinese)
-
-                    // --- Deduplicate Quantifier Phrases (Android Guard) ---
-                    // Fixes "3個300 3個300" -> "3個300" (Prevents double counting)
-                    const phraseDedupRegex = /(([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+))\s+\1/g;
-                    cleanText = cleanText.replace(phraseDedupRegex, "$1");
-
-                    // Pattern 1: Prefix "3個100" -> "100 100 100"
-                    // Enhanced with Stutter Guard: "3個 500 500" (ASR Artifact) -> Consumes both, returns 3x 500
-                    const prefixQuantifiereRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)(?:\s+\2)?/g;
-                    cleanText = cleanText.replace(prefixQuantifiereRegex, (match, countStr, valueStr) => {
-                        const count = this.parseNumber(countStr);
-                        const value = this.parseNumber(valueStr);
-                        if (!isNaN(count) && !isNaN(value) && count > 0 && count <= 50) {
-                            return Array(count).fill(value).join(' ');
-                        }
-                        return match; // If parse failed, return original (stutter might remain but better than breaking)
-                    });
-
-                    // Pattern 2: Suffix "100 5個" -> "100 100 100 100 100"
-                    // Useful for "misrecognized" order or natural "Item first" speaking style
-                    const suffixQuantifierRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s+([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]/g;
-                    cleanText = cleanText.replace(suffixQuantifierRegex, (match, valueStr, countStr) => {
-                        const count = this.parseNumber(countStr);
-                        const value = this.parseNumber(valueStr);
-                        if (!isNaN(count) && !isNaN(value) && count > 0 && count <= 50) {
-                            // Debug log if we hit this fallback
-                            const debugBar = document.getElementById('debug-bar');
-                            if (debugBar) debugBar.textContent += ` | 捕捉倒裝: ${count}個${value}`;
-                            return Array(count).fill(value).join(' ');
-                        }
-                        return match;
-                    });
-
-                    // --- Arithmetic Pre-processing ---
-                    // We keep the old normalization just in case, but we prioritize the UI operator
-                    cleanText = cleanText.replace(/減去|扣掉|扣除|減|➖|－|﹣/g, ' - ');
-                    cleanText = cleanText.replace(/乘以|乘上|乘|✖️|x|X|成|×|＊|Ｘ|ｘ/g, ' * ');
-                    cleanText = cleanText.replace(/除以|除|➗|÷|／/g, ' / ');
-                    cleanText = cleanText.replace(/加|＋/g, ' + ');
-                    cleanText = cleanText.replace(/點|。|．|·/g, '.');
-
-                    // Split by anything that isn't a Number char, Operator, or Dot
-                    const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.\-\*\/\+]+/);
-
-                    if (debugBar) {
-                        debugBar.textContent += ` | 處理後: ${cleanText} | Token: [${tokens.join(', ')}]`;
-                    }
-
-                    let addedCount = 0;
-                    let bufferExpression = [];
-
-                    const flushBuffer = () => {
-                        if (bufferExpression.length > 0) {
-                            try {
-                                const result = this.evaluateExpression(bufferExpression);
-                                if (result !== null && !isNaN(result)) {
-                                    // Determine display label for * and /
-                                    let label = null;
-                                    if (bufferExpression.length >= 2) {
-                                        const op = bufferExpression[0];
-                                        const val = bufferExpression[bufferExpression.length - 1]; // Approximate
-                                        if (op === '*' && typeof val === 'number') label = `× ${val}`;
-                                        else if (op === '/' && typeof val === 'number') label = `÷ ${val}`;
-                                    }
-
-                                    this.addEntry(result, label);
-                                    addedCount++;
-                                    if (debugBar) debugBar.textContent += ` | 結果: ${result}`;
-                                } else {
-                                    if (debugBar) debugBar.textContent += ` | 無效運算`;
-                                }
-                            } catch (e) {
-                                if (debugBar) debugBar.textContent += ` | 錯誤: ${e.message}`;
-                            }
-                            bufferExpression = [];
                         }
                     };
 
-                    tokens.forEach(token => {
-                        token = token.trim();
-                        if (!token) return;
+                    this.recognition.onresult = (event) => {
+                        this.resetInactivityTimer();
+                        clearTimeout(this.forceFinalizeTimer);
 
-                        // If token is an operator (explicitly spoken)
-                        if (['-', '*', '/', '+'].includes(token)) {
-                            // If there's a number before this operator, flush it first
-                            if (bufferExpression.length > 0 && typeof bufferExpression[bufferExpression.length - 1] === 'number') {
-                                flushBuffer();
+                        let finalTranscript = '';
+                        let interimTranscript = '';
+
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                finalTranscript += event.results[i][0].transcript;
+                            } else {
+                                interimTranscript += event.results[i][0].transcript;
                             }
-                            bufferExpression.push(token);
+                        }
+
+                        if (finalTranscript) {
+                            this.showTranscript(finalTranscript);
+                            this.processSpeechInput(finalTranscript);
+                        }
+
+                        if (interimTranscript) {
+                            this.showTranscript(interimTranscript);
+
+                            // Eager Command Execution:
+                            // If the user says a command, execute it immediately without waiting for finalization.
+                            if (this.isCommand(interimTranscript)) {
+                                console.log(`Eager Command Triggered: ${interimTranscript}`);
+                                this.processSpeechInput(interimTranscript);
+
+                                // Small delay before aborting to ensure UI updates are seen
+                                setTimeout(() => this.recognition.abort(), 100);
+                                return;
+                            }
+
+                            // Force finalize logic (Universal 400ms)
+                            // User request: Revert to 0.4s but add visual speed
+                            this.forceFinalizeTimer = setTimeout(() => {
+                                // Instant Feedback (Psychological Speedup)
+                                this.statusIndicator.textContent = '⚡ 計算中...';
+                                this.statusIndicator.style.color = '#3b82f6'; // Blue
+                                if (navigator.vibrate) navigator.vibrate(10); // Light tick
+
+                                console.log(`Force Finalizing: ${interimTranscript}`);
+                                if (this.isListening) this.recognition.stop();
+                            }, 400);
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.log(`Voice Service Error: ${event.error}`);
+                        const db = document.getElementById('debug-bar');
+
+                        // Show error clearly
+                        if (db) {
+                            // Translate common errors
+                            const errMap = {
+                                'no-speech': '沒聽到聲音 (No Speech)',
+                                'network': '網路錯誤 (Network)',
+                                'not-allowed': '沒權限 (Blocked)',
+                                'aborted': '已中止 (Aborted)'
+                            };
+                            db.textContent = `❌ 錯誤: ${errMap[event.error] || event.error}`;
+                            db.style.color = '#ef4444';
+                        }
+
+                        // Network error is common on mobile if connection is unstable
+                        if (event.error === 'network') {
+                            this.statusIndicator.textContent = '網路不穩 (需連網)';
+                            this.statusIndicator.style.color = '#ef4444';
                             return;
                         }
 
-                        // Attempt number parse
-                        let val = this.parseNumber(token);
+                        if (event.error === 'no-speech') {
+                            // Ignore, but let debug bar show it
+                            return;
+                        }
 
-                        // If valid number
-                        if (!isNaN(val)) {
-                            // Apply Current Operator Logic if no explicit operator was spoken
-                            // If buffer is empty or the last token was a number (implying a new operation)
-                            // and the current operator is not '+', prepend the current operator.
-                            if (this.currentOperator !== '+' && (bufferExpression.length === 0 || typeof bufferExpression[bufferExpression.length - 1] === 'number')) {
-                                // If the last item was a number, flush it first to start a new operation
-                                if (typeof bufferExpression[bufferExpression.length - 1] === 'number') {
-                                    flushBuffer();
-                                }
-                                bufferExpression.push(this.currentOperator);
-                            }
+                        if (event.error === 'aborted') return;
 
-                            // Check if previous item in buffer was ALSO a number (Implicit break)
-                            // This means "100 200" should be two separate additions, not "100 + 200"
-                            if (bufferExpression.length > 0) {
-                                const lastToken = bufferExpression[bufferExpression.length - 1];
-                                if (typeof lastToken === 'number') {
-                                    flushBuffer();
-                                    // After flush, if currentOperator is not '+', re-inject it for the new number
-                                    if (this.currentOperator !== '+') {
-                                        bufferExpression.push(this.currentOperator);
-                                    }
-                                }
-                            }
-
-                            bufferExpression.push(val);
+                        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                            this.isListening = false;
+                            this.updateUIState(false);
+                            alert('⚠️ 無法存取麥克風\n\n系統將自動開啟「麥克風設定」教學，請依照步驟開啟權限。');
+                            const settingsModal = document.getElementById('settings-modal');
+                            if (settingsModal) settingsModal.classList.remove('hidden');
                         } else {
-                            // If invalid (e.g. noise), flush previous buffer
-                            flushBuffer();
+                            this.statusIndicator.textContent = '錯誤: ' + event.error;
+                        }
+                    };
+                } else {
+                    alert('您的瀏覽器不支援語音辨識，請使用 Chrome (Android) 或 Safari (iOS)。');
+                    this.micBtn.disabled = true;
+                }
+            }
+
+
+
+            // Smart Wake Lock: Only active when Mic is ON
+            async toggleWakeLock(shouldEnable) {
+                if (!('wakeLock' in navigator)) return;
+
+                try {
+                    if (shouldEnable) {
+                        if (!this.wakeLock) {
+                            this.wakeLock = await navigator.wakeLock.request('screen');
+                            console.log('Wake Lock AQ (Mic ON)');
+
+                            this.wakeLock.addEventListener('release', () => {
+                                console.log('Wake Lock Released');
+                            });
+                        }
+                    } else {
+                        if (this.wakeLock) {
+                            await this.wakeLock.release();
+                            this.wakeLock = null;
+                            console.log('Wake Lock Released (Mic OFF)');
+                        }
+                    }
+                } catch (err) {
+                    console.error('WakeLock Toggle Error:', err);
+                }
+            }
+
+
+
+            initListeners() {
+                // Hard Reset Logic (Header Button)
+                const resetBtn = document.getElementById('header-reset-btn');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        if (confirm('確定重置系統？\n(清除暫存並重新載入)')) {
+                            localStorage.clear();
+                            // Optional: Unregister Service Workers if any
+                            if ('serviceWorker' in navigator) {
+                                navigator.serviceWorker.getRegistrations().then(registrations => {
+                                    for (let registration of registrations) registration.unregister();
+                                });
+                            }
+                            location.reload(true);
                         }
                     });
-
-                    // Flush remaining
-                    flushBuffer();
-
-                    if (addedCount > 0) {
-                        this.render();
-                        if (navigator.vibrate) navigator.vibrate(50);
-                    }
                 }
+                // Settings Button Logic
+                if (this.settingsBtn) {
+                    const settingsModal = document.getElementById('settings-modal');
+                    const saveSettingsBtn = document.getElementById('save-settings-btn');
+                    const autoStopSelect = document.getElementById('auto-stop-select');
+                    const recModeSelect = document.getElementById('rec-mode-select');
 
-                evaluateExpression(tokens) {
-                    if (tokens.length === 0) return null;
+                    this.settingsBtn.addEventListener('click', () => {
+                        settingsModal.classList.remove('hidden');
+                        autoStopSelect.value = this.autoStopMinutes;
+                        recModeSelect.value = this.recognitionMode;
+                    });
 
-                    if (tokens.length === 1 && typeof tokens[0] === 'number') return tokens[0];
+                    saveSettingsBtn.addEventListener('click', () => {
+                        const val = parseInt(autoStopSelect.value);
+                        this.autoStopMinutes = val;
 
-                    if (tokens[0] === '-' && tokens.length === 2 && typeof tokens[1] === 'number') return -tokens[1];
+                        const newMode = recModeSelect.value;
+                        if (this.recognitionMode !== newMode) {
+                            this.recognitionMode = newMode;
+                            // Update threshold: Universal 400
+                            this.silenceThreshold = 400;
 
-                    // * and / Logic: Apply to Total
-                    if (['*', '/'].includes(tokens[0])) {
-                        const currentTotal = this.calculateTotal();
-                        if (tokens[0] === '*') {
-                            // We want new Total = currentTotal * val.
-                            // So we add: (currentTotal * val) - currentTotal
-                            // The token stream usually is ["*", val].
-                            if (tokens.length === 2 && typeof tokens[1] === 'number') {
-                                const val = tokens[1];
-                                return (currentTotal * val) - currentTotal;
-                            }
-                        } else if (tokens[0] === '/') {
-                            if (tokens.length === 2 && typeof tokens[1] === 'number') {
-                                const val = tokens[1];
-                                if (val === 0) return null; // Div by zero
-                                // New Total = currentTotal / val
-                                // Add: (currentTotal / val) - currentTotal
-                                return (currentTotal / val) - currentTotal;
+                            // Restart if running
+                            if (this.isListening) {
+                                this.isListening = false;
+                                this.recognition.abort();
+                                setTimeout(() => this.micBtn.click(), 500); // Re-trigger
                             }
                         }
-                    }
 
-                    try {
-                        const expr = tokens.join(' ');
-                        if (!/^[0-9\.\s\-\*\/]+$/.test(expr)) return null;
-                        return new Function('return ' + expr)();
-                    } catch (e) {
-                        return null;
-                    }
+                        settingsModal.classList.add('hidden');
+                        this.showTranscript(`已儲存: ${val}分 / ${newMode === 'single' ? '單句' : '連續'}`);
+                        if (this.isListening) this.resetInactivityTimer();
+                    });
+
+                    settingsModal.addEventListener('click', (e) => {
+                        if (e.target === settingsModal) settingsModal.classList.add('hidden');
+                    });
                 }
 
-                addEntry(value, label = null) {
-                    const entry = {
-                        id: Date.now(),
-                        value: value,
-                        label: label
-                    };
-                    this.entries.push(entry);
-                    this.render();
-                    this.updateOperatorUI(); // Ensure UI reflects state
-                }
-                parseNumber(str) {
-                    // If pure numbers/dots (e.g. "0.03"), parse directly
-                    if (/^[0-9\.]+$/.test(str)) {
-                        return parseFloat(str);
-                    }
+                this.micBtn.addEventListener('click', () => {
+                    if (navigator.vibrate) navigator.vibrate(30);
 
-                    const map = {
-                        '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
-                        '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
-                        '百': 100, '千': 1000, '萬': 10000
-                    };
-
-                    // Split into integer part and decimal part if "." exists
-                    const parts = str.split('.');
-                    const integerPart = parts[0];
-                    const decimalPart = parts[1];
-
-                    let val = 0;
-
-                    // Parse Integer Part
-                    if (integerPart) {
-                        if (/^[0-9]+$/.test(integerPart)) {
-                            val = parseFloat(integerPart);
-                        } else {
-                            // Check if it contains any multipliers (十,百,千,萬)
-                            const hasMultiplier = /[十百千萬]/.test(integerPart);
-
-                            if (!hasMultiplier) {
-                                // Digit-by-Digit Parsing (e.g. "六九" -> 69)
-                                let digitStr = '';
-                                for (let i = 0; i < integerPart.length; i++) {
-                                    const char = integerPart[i];
-                                    if (/[0-9]/.test(char)) {
-                                        digitStr += char;
-                                    } else if (map[char] !== undefined) {
-                                        digitStr += map[char];
-                                    }
-                                }
-                                if (digitStr) val = parseFloat(digitStr);
-                            } else {
-                                // Standard Chinese Parsing (e.g. "六十九" -> 69)
-                                let bucket = 0;
-                                let currentDigitStr = '';
-
-                                for (let i = 0; i < integerPart.length; i++) {
-                                    const char = integerPart[i];
-
-                                    if (/[0-9]/.test(char)) {
-                                        currentDigitStr += char;
-                                        continue;
-                                    }
-
-                                    if (currentDigitStr) {
-                                        bucket = parseFloat(currentDigitStr);
-                                        currentDigitStr = '';
-                                    }
-
-                                    const num = map[char];
-                                    if (num === undefined) continue;
-
-                                    if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
-                                        if (bucket === 0 && char === '十') bucket = 1;
-
-                                        if (num === 10000) {
-                                            val = (val + bucket) * 10000;
-                                            bucket = 0;
-                                        } else {
-                                            val += bucket * num;
-                                            bucket = 0;
-                                        }
-                                    } else {
-                                        bucket = num;
-                                    }
-                                }
-                                if (currentDigitStr) {
-                                    bucket = parseFloat(currentDigitStr);
-                                }
-                                val += bucket;
-                            }
-                        }
-                    }
-
-                    // Parse Decimal Part (if exists)
-                    if (decimalPart) {
-                        // Chinese decimal reading is usually digit-by-digit: "零點零三" -> 0 . 0 3
-                        let decimalValStr = '';
-                        for (let i = 0; i < decimalPart.length; i++) {
-                            const char = decimalPart[i];
-                            if (/[0-9]/.test(char)) {
-                                decimalValStr += char;
-                            } else if (map[char] !== undefined && map[char] < 10) {
-                                decimalValStr += map[char];
-                            }
-                        }
-                        if (decimalValStr) {
-                            val += parseFloat(`0.${decimalValStr}`);
-                        }
-                    }
-
-                    return val === 0 && !str.includes('零') && parseFloat(str) !== 0 ? NaN : val;
-                }
-
-                deleteLastEntry() {
-                    if (this.entries.length > 0) {
-                        const removed = this.entries.pop();
-                        this.render();
-                        this.showTranscript(`已刪除 ${removed.value}`);
+                    if (this.isListening) {
+                        // User wants to STOP
+                        this.isListening = false;
+                        this.recognition.stop();
+                        this.updateUIState(false);
+                        if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
                     } else {
+                        // User wants to START
+                        this.isListening = true;
+                        this.toggleWakeLock(true); // SCREEN ON
+                        this.statusIndicator.textContent = '啟動中...';
+                        try {
+                            this.recognition.abort();
+                        } catch (e) { }
+
+                        // Direct start (No timeout) for better mobile compatibility
+                        try {
+                            this.recognition.start();
+                        } catch (e) {
+                            console.error("Start failed", e);
+                            this.isListening = false;
+                            this.updateUIState(false);
+                            // Only alert if not already started
+                            if (e.message !== "Failed to execute 'start' on 'SpeechRecognition': recognition has already started.") {
+                                alert('啟動失敗，請重試 (或嘗試重整網頁)');
+                            }
+                        }
+                    }
+                });
+
+                this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
+                this.btnSummary.addEventListener('click', () => this.showSummary());
+
+                this.btnClear.addEventListener('click', () => {
+                    if (this.entries.length > 0 && confirm('確定清空所有數字？')) {
+                        this.clearAllEntries();
+                    } else if (this.entries.length === 0) {
                         this.showTranscript('無資料');
                     }
+                });
+
+                this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
+                this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
+                this.summaryModal.addEventListener('click', (e) => {
+                    if (e.target === this.summaryModal) this.summaryModal.classList.add('hidden');
+                });
+
+                // Keyboard Modal Logic
+                const keyModal = document.getElementById('keyboard-modal');
+                const keyBtn = document.getElementById('btn-keyboard');
+                const closeKeyBtn = document.getElementById('close-keyboard-btn');
+                const inputField = document.getElementById('manual-input-field');
+                const confirmKeyBtn = document.getElementById('next-input-btn'); // Replaced ID
+                const finishKeyBtn = document.getElementById('finish-input-btn');
+
+                if (keyBtn) {
+                    keyBtn.addEventListener('click', () => {
+                        keyModal.classList.remove('hidden');
+                        setTimeout(() => inputField.focus(), 100);
+                    });
                 }
 
-                clearAllEntries() {
-                    if (this.entries.length > 0) {
-                        this.entries = [];
-                        this.render();
-                        this.showTranscript('已全部清空');
-                        // Two distinct vibrations to confirm clear
-                        if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+                const processManualInput = (keepOpen = false) => {
+                    const text = inputField.value;
+                    if (text) {
+                        this.processSpeechInput(text);
+                        inputField.value = '';
+                        if (navigator.vibrate) navigator.vibrate(50);
+                    }
+
+                    if (keepOpen) {
+                        inputField.focus();
                     } else {
-                        this.showTranscript('無資料 (無需清空)');
+                        keyModal.classList.add('hidden');
+                    }
+                };
+
+                if (closeKeyBtn) closeKeyBtn.addEventListener('click', () => keyModal.classList.add('hidden'));
+                keyModal.addEventListener('click', (e) => {
+                    if (e.target === keyModal) keyModal.classList.add('hidden');
+                });
+
+                // Bindings
+                if (confirmKeyBtn) confirmKeyBtn.addEventListener('click', () => processManualInput(true)); // Next
+                if (finishKeyBtn) finishKeyBtn.addEventListener('click', () => processManualInput(false)); // Finish
+
+                inputField.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') processManualInput(true); // Enter = Next (Continuous)
+                });
+            }
+
+            initOperatorButtons() {
+                this.operatorButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        // Remove active from all
+                        this.operatorButtons.forEach(b => b.classList.remove('active'));
+                        // Add to clicked
+                        const target = e.currentTarget;
+                        target.classList.add('active');
+                        // Set state
+                        this.currentOperator = target.dataset.op;
+
+                        // Feedback
+                        if (navigator.vibrate) navigator.vibrate(30);
+
+                        // Update UI Text
+                        this.updateOperatorUI();
+                    });
+                });
+            }
+
+            updateOperatorUI() {
+                // Ensure visual sync
+                this.operatorButtons.forEach(btn => {
+                    if (btn.dataset.op === this.currentOperator) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // Update text hint if exists
+                const hint = document.getElementById('mode-hint');
+                if (hint) {
+                    const map = { '+': '加法', '-': '減法', '*': '乘法 (總額)', '/': '除法 (總額)' };
+                    hint.textContent = map[this.currentOperator] || '加法';
+                    hint.style.color = this.currentOperator === '+' ? '#3b82f6' :
+                        this.currentOperator === '-' ? '#ef4444' :
+                            this.currentOperator === '*' ? '#f59e0b' : '#8b5cf6';
+                }
+            }
+
+            updateUIState(listening, customText) {
+                if (listening) {
+                    this.micBtn.classList.add('listening');
+                    this.statusIndicator.textContent = customText || '聆聽中...';
+                    this.statusIndicator.classList.add('listening');
+                } else {
+                    this.micBtn.classList.remove('listening');
+                    this.statusIndicator.textContent = '系統已更新 (準備就緒)';
+                    setTimeout(() => {
+                        this.updateUIState(false);
+                        this.toggleWakeLock(false); // SCREEN OFF (Allow Sleep)
+                    }, 2000);
+                    this.statusIndicator.classList.remove('listening');
+                    this.hideTranscript();
+                    this.toggleWakeLock(false); // Immediate visual release
+                }
+            }
+
+            showTranscript(text) {
+                this.liveTranscript.textContent = text;
+                this.liveTranscript.classList.remove('hidden');
+                if (this.transcriptTimeout) clearTimeout(this.transcriptTimeout);
+                this.transcriptTimeout = setTimeout(() => this.hideTranscript(), 2000);
+            }
+
+            hideTranscript() {
+                this.liveTranscript.classList.add('hidden');
+            }
+
+            isCommand(text) {
+                if (!text) return false;
+                const lower = text.toLowerCase();
+                return text.includes('清除') || text.includes('全清') || text.includes('歸零') || text.includes('清楚') || text.includes('歸0') || text.includes('幫我歸零') ||
+                    text.includes('總共') || text.includes('多少') || text.includes('結算') || text.includes('買單') || text.includes('此單') ||
+                    text.includes('刪除') || lower.includes('delete');
+            }
+
+            processSpeechInput(text) {
+                let cleanText = text.trim();
+                cleanText = cleanText.replace(/,/g, '');
+                if (!cleanText) return;
+
+                // --- Debug Logging (Raw) ---
+                const debugBar = document.getElementById('debug-bar');
+                if (debugBar) {
+                    debugBar.textContent = `聽見: ${cleanText} | 模式: ${this.currentOperator}`;
+                }
+
+                // Command: Delete
+                if (cleanText.includes('刪除') || cleanText.toLowerCase().includes('delete')) {
+                    this.deleteLastEntry();
+                    return;
+                }
+
+                // Command: Clear All
+                if (cleanText.includes('清除') || cleanText.includes('全清') || cleanText.includes('歸零') || cleanText.includes('清楚') || cleanText.includes('歸0') || cleanText.includes('幫我歸零')) {
+                    this.clearAllEntries();
+                    return;
+                }
+
+                // Command: Summary
+                if (cleanText.includes('總共') || cleanText.includes('多少') || cleanText.includes('結算') || cleanText.includes('買單') || cleanText.includes('此單')) {
+                    this.showSummary();
+                    return;
+                }
+
+                // --- Batch Input Pre-processing (Quantifiers) ---
+                // Pattern: "3個100" or "三個100" -> "100 100 100"
+                // Logic: Capture Number (Digit/Chinese) + Quantifier + Number (Digit/Chinese)
+
+                // --- Deduplicate Quantifier Phrases (Android Guard) ---
+                // Fixes "3個300 3個300" -> "3個300" (Prevents double counting)
+                const phraseDedupRegex = /(([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+))\s+\1/g;
+                cleanText = cleanText.replace(phraseDedupRegex, "$1");
+
+                // Pattern 1: Prefix "3個100" -> "100 100 100"
+                // Enhanced with Stutter Guard: "3個 500 500" (ASR Artifact) -> Consumes both, returns 3x 500
+                const prefixQuantifiereRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)(?:\s+\2)?/g;
+                cleanText = cleanText.replace(prefixQuantifiereRegex, (match, countStr, valueStr) => {
+                    const count = this.parseNumber(countStr);
+                    const value = this.parseNumber(valueStr);
+                    if (!isNaN(count) && !isNaN(value) && count > 0 && count <= 50) {
+                        return Array(count).fill(value).join(' ');
+                    }
+                    return match; // If parse failed, return original (stutter might remain but better than breaking)
+                });
+
+                // Pattern 2: Suffix "100 5個" -> "100 100 100 100 100"
+                // Useful for "misrecognized" order or natural "Item first" speaking style
+                const suffixQuantifierRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s+([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]/g;
+                cleanText = cleanText.replace(suffixQuantifierRegex, (match, valueStr, countStr) => {
+                    const count = this.parseNumber(countStr);
+                    const value = this.parseNumber(valueStr);
+                    if (!isNaN(count) && !isNaN(value) && count > 0 && count <= 50) {
+                        // Debug log if we hit this fallback
+                        const debugBar = document.getElementById('debug-bar');
+                        if (debugBar) debugBar.textContent += ` | 捕捉倒裝: ${count}個${value}`;
+                        return Array(count).fill(value).join(' ');
+                    }
+                    return match;
+                });
+
+                // --- Arithmetic Pre-processing ---
+                // We keep the old normalization just in case, but we prioritize the UI operator
+                cleanText = cleanText.replace(/減去|扣掉|扣除|減|➖|－|﹣/g, ' - ');
+                cleanText = cleanText.replace(/乘以|乘上|乘|✖️|x|X|成|×|＊|Ｘ|ｘ/g, ' * ');
+                cleanText = cleanText.replace(/除以|除|➗|÷|／/g, ' / ');
+                cleanText = cleanText.replace(/加|＋/g, ' + ');
+                cleanText = cleanText.replace(/點|。|．|·/g, '.');
+
+                // Split by anything that isn't a Number char, Operator, or Dot
+                const tokens = cleanText.split(/[^0-9零一二兩三四五六七八九十百千萬\.\-\*\/\+]+/);
+
+                if (debugBar) {
+                    debugBar.textContent += ` | 處理後: ${cleanText} | Token: [${tokens.join(', ')}]`;
+                }
+
+                let addedCount = 0;
+                let bufferExpression = [];
+
+                const flushBuffer = () => {
+                    if (bufferExpression.length > 0) {
+                        try {
+                            const result = this.evaluateExpression(bufferExpression);
+                            if (result !== null && !isNaN(result)) {
+                                // Determine display label for * and /
+                                let label = null;
+                                if (bufferExpression.length >= 2) {
+                                    const op = bufferExpression[0];
+                                    const val = bufferExpression[bufferExpression.length - 1]; // Approximate
+                                    if (op === '*' && typeof val === 'number') label = `× ${val}`;
+                                    else if (op === '/' && typeof val === 'number') label = `÷ ${val}`;
+                                }
+
+                                this.addEntry(result, label);
+                                addedCount++;
+                                if (debugBar) debugBar.textContent += ` | 結果: ${result}`;
+                            } else {
+                                if (debugBar) debugBar.textContent += ` | 無效運算`;
+                            }
+                        } catch (e) {
+                            if (debugBar) debugBar.textContent += ` | 錯誤: ${e.message}`;
+                        }
+                        bufferExpression = [];
+                    }
+                };
+
+                tokens.forEach(token => {
+                    token = token.trim();
+                    if (!token) return;
+
+                    // If token is an operator (explicitly spoken)
+                    if (['-', '*', '/', '+'].includes(token)) {
+                        // If there's a number before this operator, flush it first
+                        if (bufferExpression.length > 0 && typeof bufferExpression[bufferExpression.length - 1] === 'number') {
+                            flushBuffer();
+                        }
+                        bufferExpression.push(token);
+                        return;
+                    }
+
+                    // Attempt number parse
+                    let val = this.parseNumber(token);
+
+                    // If valid number
+                    if (!isNaN(val)) {
+                        // Apply Current Operator Logic if no explicit operator was spoken
+                        // If buffer is empty or the last token was a number (implying a new operation)
+                        // and the current operator is not '+', prepend the current operator.
+                        if (this.currentOperator !== '+' && (bufferExpression.length === 0 || typeof bufferExpression[bufferExpression.length - 1] === 'number')) {
+                            // If the last item was a number, flush it first to start a new operation
+                            if (typeof bufferExpression[bufferExpression.length - 1] === 'number') {
+                                flushBuffer();
+                            }
+                            bufferExpression.push(this.currentOperator);
+                        }
+
+                        // Check if previous item in buffer was ALSO a number (Implicit break)
+                        // This means "100 200" should be two separate additions, not "100 + 200"
+                        if (bufferExpression.length > 0) {
+                            const lastToken = bufferExpression[bufferExpression.length - 1];
+                            if (typeof lastToken === 'number') {
+                                flushBuffer();
+                                // After flush, if currentOperator is not '+', re-inject it for the new number
+                                if (this.currentOperator !== '+') {
+                                    bufferExpression.push(this.currentOperator);
+                                }
+                            }
+                        }
+
+                        bufferExpression.push(val);
+                    } else {
+                        // If invalid (e.g. noise), flush previous buffer
+                        flushBuffer();
+                    }
+                });
+
+                // Flush remaining
+                flushBuffer();
+
+                if (addedCount > 0) {
+                    this.render();
+                    if (navigator.vibrate) navigator.vibrate(50);
+                }
+            }
+
+            evaluateExpression(tokens) {
+                if (tokens.length === 0) return null;
+
+                if (tokens.length === 1 && typeof tokens[0] === 'number') return tokens[0];
+
+                if (tokens[0] === '-' && tokens.length === 2 && typeof tokens[1] === 'number') return -tokens[1];
+
+                // * and / Logic: Apply to Total
+                if (['*', '/'].includes(tokens[0])) {
+                    const currentTotal = this.calculateTotal();
+                    if (tokens[0] === '*') {
+                        // We want new Total = currentTotal * val.
+                        // So we add: (currentTotal * val) - currentTotal
+                        // The token stream usually is ["*", val].
+                        if (tokens.length === 2 && typeof tokens[1] === 'number') {
+                            const val = tokens[1];
+                            return (currentTotal * val) - currentTotal;
+                        }
+                    } else if (tokens[0] === '/') {
+                        if (tokens.length === 2 && typeof tokens[1] === 'number') {
+                            const val = tokens[1];
+                            if (val === 0) return null; // Div by zero
+                            // New Total = currentTotal / val
+                            // Add: (currentTotal / val) - currentTotal
+                            return (currentTotal / val) - currentTotal;
+                        }
                     }
                 }
 
-                showSummary() {
-                    this.updateTotal();
-                    this.modalCount.textContent = this.entries.length;
-                    this.modalTotal.textContent = this.calculateTotal().toLocaleString();
-                    this.summaryModal.classList.remove('hidden');
+                try {
+                    const expr = tokens.join(' ');
+                    if (!/^[0-9\.\s\-\*\/]+$/.test(expr)) return null;
+                    return new Function('return ' + expr)();
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            addEntry(value, label = null) {
+                const entry = {
+                    id: Date.now(),
+                    value: value,
+                    label: label
+                };
+                this.entries.push(entry);
+                this.render();
+                this.updateOperatorUI(); // Ensure UI reflects state
+            }
+            parseNumber(str) {
+                // If pure numbers/dots (e.g. "0.03"), parse directly
+                if (/^[0-9\.]+$/.test(str)) {
+                    return parseFloat(str);
                 }
 
-                calculateTotal() {
-                    return this.entries.reduce((sum, item) => sum + item.value, 0);
+                const map = {
+                    '零': 0, '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4,
+                    '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+                    '百': 100, '千': 1000, '萬': 10000
+                };
+
+                // Split into integer part and decimal part if "." exists
+                const parts = str.split('.');
+                const integerPart = parts[0];
+                const decimalPart = parts[1];
+
+                let val = 0;
+
+                // Parse Integer Part
+                if (integerPart) {
+                    if (/^[0-9]+$/.test(integerPart)) {
+                        val = parseFloat(integerPart);
+                    } else {
+                        // Check if it contains any multipliers (十,百,千,萬)
+                        const hasMultiplier = /[十百千萬]/.test(integerPart);
+
+                        if (!hasMultiplier) {
+                            // Digit-by-Digit Parsing (e.g. "六九" -> 69)
+                            let digitStr = '';
+                            for (let i = 0; i < integerPart.length; i++) {
+                                const char = integerPart[i];
+                                if (/[0-9]/.test(char)) {
+                                    digitStr += char;
+                                } else if (map[char] !== undefined) {
+                                    digitStr += map[char];
+                                }
+                            }
+                            if (digitStr) val = parseFloat(digitStr);
+                        } else {
+                            // Standard Chinese Parsing (e.g. "六十九" -> 69)
+                            let bucket = 0;
+                            let currentDigitStr = '';
+
+                            for (let i = 0; i < integerPart.length; i++) {
+                                const char = integerPart[i];
+
+                                if (/[0-9]/.test(char)) {
+                                    currentDigitStr += char;
+                                    continue;
+                                }
+
+                                if (currentDigitStr) {
+                                    bucket = parseFloat(currentDigitStr);
+                                    currentDigitStr = '';
+                                }
+
+                                const num = map[char];
+                                if (num === undefined) continue;
+
+                                if (num >= 10 && ![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(num)) {
+                                    if (bucket === 0 && char === '十') bucket = 1;
+
+                                    if (num === 10000) {
+                                        val = (val + bucket) * 10000;
+                                        bucket = 0;
+                                    } else {
+                                        val += bucket * num;
+                                        bucket = 0;
+                                    }
+                                } else {
+                                    bucket = num;
+                                }
+                            }
+                            if (currentDigitStr) {
+                                bucket = parseFloat(currentDigitStr);
+                            }
+                            val += bucket;
+                        }
+                    }
                 }
 
-                updateTotal() {
-                    const total = this.calculateTotal();
-                    this.totalAmountEl.textContent = total.toLocaleString();
-                    this.totalAreaLabel.textContent = `總計 (${this.entries.length} 筆)`;
+                // Parse Decimal Part (if exists)
+                if (decimalPart) {
+                    // Chinese decimal reading is usually digit-by-digit: "零點零三" -> 0 . 0 3
+                    let decimalValStr = '';
+                    for (let i = 0; i < decimalPart.length; i++) {
+                        const char = decimalPart[i];
+                        if (/[0-9]/.test(char)) {
+                            decimalValStr += char;
+                        } else if (map[char] !== undefined && map[char] < 10) {
+                            decimalValStr += map[char];
+                        }
+                    }
+                    if (decimalValStr) {
+                        val += parseFloat(`0.${decimalValStr}`);
+                    }
                 }
 
-                render() {
-                    this.updateTotal();
-                    this.entriesList.innerHTML = '';
+                return val === 0 && !str.includes('零') && parseFloat(str) !== 0 ? NaN : val;
+            }
 
-                    if (this.entries.length === 0) {
-                        this.entriesList.innerHTML = `
+            deleteLastEntry() {
+                if (this.entries.length > 0) {
+                    const removed = this.entries.pop();
+                    this.render();
+                    this.showTranscript(`已刪除 ${removed.value}`);
+                } else {
+                    this.showTranscript('無資料');
+                }
+            }
+
+            clearAllEntries() {
+                if (this.entries.length > 0) {
+                    this.entries = [];
+                    this.render();
+                    this.showTranscript('已全部清空');
+                    // Two distinct vibrations to confirm clear
+                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+                } else {
+                    this.showTranscript('無資料 (無需清空)');
+                }
+            }
+
+            showSummary() {
+                this.updateTotal();
+                this.modalCount.textContent = this.entries.length;
+                this.modalTotal.textContent = this.calculateTotal().toLocaleString();
+                this.summaryModal.classList.remove('hidden');
+            }
+
+            calculateTotal() {
+                return this.entries.reduce((sum, item) => sum + item.value, 0);
+            }
+
+            updateTotal() {
+                const total = this.calculateTotal();
+                this.totalAmountEl.textContent = total.toLocaleString();
+                this.totalAreaLabel.textContent = `總計 (${this.entries.length} 筆)`;
+            }
+
+            render() {
+                this.updateTotal();
+                this.entriesList.innerHTML = '';
+
+                if (this.entries.length === 0) {
+                    this.entriesList.innerHTML = `
                         <div class="empty-state">
                             <div style="text-align: left; display: inline-block; max-width: 90%; line-height: 1.6;">
                                 <p style="margin-bottom: 8px;">● 請按開始說話，相加只需喊數字<br>
                                     <span style="color: var(--text-secondary); font-size: 0.9em;">例「150 200 300」</span>
                                 </p>
                                 <p>● 說「歸零」「全清」「清除」「幫我歸零」畫面會全部清除</p>
-                                <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v3.7 (佈局微調)</p>
+                                <p style="margin-top: 8px; font-size: 0.8em; color: #888;">版本 v4.0 (智慧修復)</p>
                                 <p style="margin-top: 8px; color: #4a90e2; font-weight: bold;">目前模式: <span id="mode-hint">加法 (預設)</span></p>
                             </div>
                         </div>
                     `;
-                        setTimeout(() => this.updateOperatorUI(), 0);
-                        return;
+                    setTimeout(() => this.updateOperatorUI(), 0);
+                    return;
+                }
+
+                // Render newest first
+                this.entries.slice().reverse().forEach(entry => {
+                    const li = document.createElement('div');
+                    li.className = 'entry-item';
+
+                    // Display Priority: Label > Explicit Sign > Standard
+                    let displayValue;
+                    if (entry.label) {
+                        displayValue = entry.label;
+                    } else {
+                        displayValue = (entry.value >= 0 ? '' : '') + entry.value.toLocaleString();
                     }
 
-                    // Render newest first
-                    this.entries.slice().reverse().forEach(entry => {
-                        const li = document.createElement('div');
-                        li.className = 'entry-item';
-
-                        // Display Priority: Label > Explicit Sign > Standard
-                        let displayValue;
-                        if (entry.label) {
-                            displayValue = entry.label;
-                        } else {
-                            displayValue = (entry.value >= 0 ? '' : '') + entry.value.toLocaleString();
-                        }
-
-                        li.innerHTML = `
+                    li.innerHTML = `
                         <div class="entry-index">#${this.entries.indexOf(entry) + 1}</div>
                         <div class="entry-value ${entry.value < 0 && !entry.label ? 'negative' : ''}">
                             ${displayValue}
@@ -1279,19 +1295,19 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
                     `;
-                        li.querySelector('.delete-btn').addEventListener('click', () => {
-                            this.entries = this.entries.filter(e => e.id !== entry.id);
-                            this.render();
-                        });
-                        this.entriesList.appendChild(li);
+                    li.querySelector('.delete-btn').addEventListener('click', () => {
+                        this.entries = this.entries.filter(e => e.id !== entry.id);
+                        this.render();
                     });
-                }
+                    this.entriesList.appendChild(li);
+                });
             }
+        }
 
-            window.addEventListener('DOMContentLoaded', () => {
-                new VoiceCalculator();
-            });
-        </script>
+        window.addEventListener('DOMContentLoaded', () => {
+            new VoiceCalculator();
+        });
+    </script>
 </body>
 
 </html>
