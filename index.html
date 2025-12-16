@@ -633,6 +633,11 @@
                             if (settingsModal) settingsModal.classList.remove('hidden');
                         } else {
                             this.statusIndicator.textContent = '錯誤: ' + event.error;
+                            // Critical: If error is fatal, stop listening state
+                            if (['audio-capture', 'not-allowed', 'service-not-allowed'].includes(event.error)) {
+                                this.isListening = false;
+                                this.updateUIState(false);
+                            }
                         }
                     };
                 } else {
@@ -718,17 +723,34 @@
 
                     // Mic Button Logic
                     if (this.micBtn) {
-                        this.micBtn.addEventListener('click', () => {
+                        this.micBtn.addEventListener('click', async () => {
                             if (navigator.vibrate) navigator.vibrate(30);
+
                             if (this.isListening) {
+                                // STOP
                                 this.isListening = false;
                                 this.recognition.stop();
                                 this.updateUIState(false);
                             } else {
-                                this.isListening = true;
-                                this.toggleWakeLock(true);
-                                this.statusIndicator.textContent = '啟動中...';
-                                try { this.recognition.start(); } catch (e) { }
+                                // START
+                                try {
+                                    this.statusIndicator.textContent = '啟動中...';
+                                    await this.toggleWakeLock(true);
+                                    this.isListening = true;
+                                    this.recognition.start();
+                                } catch (e) {
+                                    console.error("Mic Start Error", e);
+                                    this.isListening = false;
+                                    this.updateUIState(false);
+
+                                    if (e.message && e.message.includes('already started')) {
+                                        this.isListening = true;
+                                        this.updateUIState(true);
+                                    } else {
+                                        // Show detailed error
+                                        alert('麥克風啟動失敗 (詳細): ' + (e.message || e));
+                                    }
+                                }
                             }
                         });
                     }
