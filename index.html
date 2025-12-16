@@ -11,6 +11,24 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* CRITICAL: Internal Animation Definition to Bypass CSS Cache */
+        @keyframes pulse-active {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+                transform: scale(1.05);
+            }
+
+            50% {
+                box-shadow: 0 0 0 25px rgba(239, 68, 68, 0);
+                transform: scale(1.15);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+                transform: scale(1.05);
+            }
+        }
+
         /* Operator Row Styling */
         .operator-row {
             display: flex;
@@ -945,8 +963,8 @@
             updateUIState(listening, customText) {
                 if (listening) {
                     this.micBtn.classList.add('listening');
-                    // FORCE animation inline to bypass any CSS glitches
-                    this.micBtn.style.animation = 'pulse 1.5s infinite';
+                    // FORCE animation inline using internal keyframes
+                    this.micBtn.style.animation = 'pulse-active 1.5s infinite';
                     this.statusIndicator.textContent = customText || '聆聽中...';
                     this.statusIndicator.classList.add('listening');
                 } else {
