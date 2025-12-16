@@ -514,7 +514,14 @@
                     };
 
                     // Diagnostic Events
-                    this.recognition.onaudiostart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '🎵 音訊輸入開始 (Audio Start)'; };
+                    this.recognition.onaudiostart = () => {
+                        if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '🎵 音訊輸入開始 (Audio Start)';
+                        // FORCE UI Sync: If hardware starts, UI must be Red
+                        if (!this.isListening) {
+                            this.isListening = true;
+                            this.updateUIState(true);
+                        }
+                    };
                     this.recognition.onsoundstart = () => {
                         const db = document.getElementById('debug-bar');
                         if (db) { db.textContent = '🔊 偵測到聲音 (Sound Detected)'; db.style.color = '#fff'; }
@@ -752,10 +759,12 @@
                             } else {
                                 // START
                                 try {
+                                    // Optimistic UI Update: IMMEDIATE RED
                                     this.statusIndicator.textContent = '啟動中...';
-                                    await this.toggleWakeLock(true);
                                     this.isListening = true;
-                                    this.updateUIState(true); // Optimistic UI
+                                    this.updateUIState(true);
+
+                                    await this.toggleWakeLock(true);
                                     this.recognition.start();
                                 } catch (e) {
                                     console.error("Mic Start Error", e);
