@@ -416,6 +416,15 @@
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                     this.recognition = new SpeechRecognition();
 
+                    // Protocol Check (Crucial for Mobile)
+                    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                        setTimeout(() => {
+                            alert('⛔【麥克風受限注意】⛔\n\n您似乎正在使用「非安全連線 (HTTP)」開啟此網頁。\n\n手機瀏覽器通常會強制封鎖麥克風。\n請嘗試：\n1. 使用 localhost (本機)\n2. 設定 HTTPS Server\n3. 使用鍵盤輸入模式');
+                            this.statusIndicator.textContent = '連線不安全 (麥克風受限)';
+                            this.statusIndicator.style.color = 'orange';
+                        }, 500);
+                    }
+
                     // Continuous=true for smoother session. 
                     this.recognition.continuous = true;
                     this.recognition.lang = 'cmn-Hant-TW';
@@ -596,18 +605,22 @@
                         // User wants to START
                         this.isListening = true;
                         this.statusIndicator.textContent = '啟動中...';
-                        try { this.recognition.abort(); } catch (e) { }
+                        try {
+                            this.recognition.abort();
+                        } catch (e) { }
 
-                        setTimeout(() => {
-                            try {
-                                this.recognition.start();
-                            } catch (e) {
-                                console.error("Start failed", e);
-                                this.isListening = false;
-                                this.updateUIState(false);
-                                alert('啟動失敗，請重試');
+                        // Direct start (No timeout) for better mobile compatibility
+                        try {
+                            this.recognition.start();
+                        } catch (e) {
+                            console.error("Start failed", e);
+                            this.isListening = false;
+                            this.updateUIState(false);
+                            // Only alert if not already started
+                            if (e.message !== "Failed to execute 'start' on 'SpeechRecognition': recognition has already started.") {
+                                alert('啟動失敗，請重試 (或嘗試重整網頁)');
                             }
-                        }, 100);
+                        }
                     }
                 });
 
@@ -944,7 +957,6 @@
                 this.render();
                 this.updateOperatorUI(); // Ensure UI reflects state
             }
-
             parseNumber(str) {
                 // If pure numbers/dots (e.g. "0.03"), parse directly
                 if (/^[0-9\.]+$/.test(str)) {
