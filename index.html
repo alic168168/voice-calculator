@@ -945,10 +945,13 @@
             updateUIState(listening, customText) {
                 if (listening) {
                     this.micBtn.classList.add('listening');
+                    // FORCE animation inline to bypass any CSS glitches
+                    this.micBtn.style.animation = 'pulse 1.5s infinite';
                     this.statusIndicator.textContent = customText || '聆聽中...';
                     this.statusIndicator.classList.add('listening');
                 } else {
                     this.micBtn.classList.remove('listening');
+                    this.micBtn.style.animation = 'none'; // Clear animation
                     this.statusIndicator.textContent = '系統已更新 (準備就緒)';
                     setTimeout(() => {
                         this.updateUIState(false);
