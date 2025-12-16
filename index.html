@@ -888,6 +888,12 @@
                     // --- Batch Input Pre-processing (Quantifiers) ---
                     // Pattern: "3個100" or "三個100" -> "100 100 100"
                     // Logic: Capture Number (Digit/Chinese) + Quantifier + Number (Digit/Chinese)
+
+                    // --- Deduplicate Quantifier Phrases (Android Guard) ---
+                    // Fixes "3個300 3個300" -> "3個300" (Prevents double counting)
+                    const phraseDedupRegex = /(([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+))\s+\1/g;
+                    cleanText = cleanText.replace(phraseDedupRegex, "$1");
+
                     // Pattern 1: Prefix "3個100" -> "100 100 100"
                     // Enhanced with Stutter Guard: "3個 500 500" (ASR Artifact) -> Consumes both, returns 3x 500
                     const prefixQuantifiereRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)(?:\s+\2)?/g;
