@@ -343,7 +343,7 @@
                     this.finalTranscript = '';
                     this.silenceTimer = null;
                     this.autoStopMinutes = 3; // Default 3 mins
-                    this.silenceThreshold = 250; // Challenge: 0.25s Super Fast
+                    this.silenceThreshold = 400; // User Request: 0.4s (Balanced)
                     this.recognitionMode = 'continuous'; // 'continuous' or 'single'
                     this.lastSpeechTime = Date.now();
                     this.inactivityCheckInterval = null;
@@ -567,12 +567,17 @@
                                     return;
                                 }
 
-                                // Force finalize logic (Universal 250ms)
-                                // User request: "0.4s feels slow", trying 0.25s
+                                // Force finalize logic (Universal 400ms)
+                                // User request: Revert to 0.4s but add visual speed
                                 this.forceFinalizeTimer = setTimeout(() => {
+                                    // Instant Feedback (Psychological Speedup)
+                                    this.statusIndicator.textContent = '⚡ 計算中...';
+                                    this.statusIndicator.style.color = '#3b82f6'; // Blue
+                                    if (navigator.vibrate) navigator.vibrate(10); // Light tick
+
                                     console.log(`Force Finalizing: ${interimTranscript}`);
                                     if (this.isListening) this.recognition.stop();
-                                }, 250);
+                                }, 400);
                             }
                         };
 
@@ -683,8 +688,8 @@
                             const newMode = recModeSelect.value;
                             if (this.recognitionMode !== newMode) {
                                 this.recognitionMode = newMode;
-                                // Update threshold: Universal 250
-                                this.silenceThreshold = 250;
+                                // Update threshold: Universal 400
+                                this.silenceThreshold = 400;
 
                                 // Restart if running
                                 if (this.isListening) {
