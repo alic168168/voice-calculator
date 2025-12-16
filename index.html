@@ -737,6 +737,7 @@
                                     this.statusIndicator.textContent = '啟動中...';
                                     await this.toggleWakeLock(true);
                                     this.isListening = true;
+                                    this.updateUIState(true); // Optimistic UI
                                     this.recognition.start();
                                 } catch (e) {
                                     console.error("Mic Start Error", e);
