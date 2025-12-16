@@ -56,6 +56,13 @@
 
 <body>
     <div class="app-container">
+        <!-- Error Debugger -->
+        <script>
+            window.onerror = function (msg, url, lineNo, columnNo, error) {
+                alert('系統錯誤: ' + msg + '\n行號: ' + lineNo);
+                return false;
+            };
+        </script>
         <!-- Header Controls (Settings + Top Ops) -->
         <div class="header-controls"
             style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px;">
@@ -77,6 +84,7 @@
 
                 <!-- Keyboard Input -->
                 <button id="btn-keyboard" class="icon-btn op-contrast" aria-label="鍵盤輸入"
+                    onclick="document.getElementById('keyboard-modal').classList.remove('hidden')"
                     style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -260,82 +268,79 @@
         <div class="modal-content">
             <h2>麥克風設定</h2>
             <div class="settings-body">
-                <div class="settings-body">
-                    <label for="auto-stop-select">閒置自動關閉 (分鐘)</label>
-                    <select id="auto-stop-select" class="styled-select">
-                        <option value="1">1 分鐘</option>
-                        <option value="2">2 分鐘</option>
-                        <option value="3">3 分鐘</option>
-                        <option value="5">5 分鐘</option>
-                        <option value="10">10 分鐘</option>
-                    </select>
+                <label for="auto-stop-select">閒置自動關閉 (分鐘)</label>
+                <select id="auto-stop-select" class="styled-select">
+                    <option value="1">1 分鐘</option>
+                    <option value="2">2 分鐘</option>
+                    <option value="3">3 分鐘</option>
+                    <option value="5">5 分鐘</option>
+                    <option value="10">10 分鐘</option>
+                </select>
 
-                    <label for="rec-mode-select" style="margin-top: 15px; display: block;">辨識模式 (環境設定)</label>
-                    <select id="rec-mode-select" class="styled-select">
-                        <option value="continuous">連續模式 (預設 - 流暢)</option>
-                        <option value="single">單句模式 (吵雜環境推薦 - 準確)</option>
-                    </select>
-                    <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-                        ※ 若覺得反應變慢或環境很吵，請切換至「單句模式」。
+                <label for="rec-mode-select" style="margin-top: 15px; display: block;">辨識模式 (環境設定)</label>
+                <select id="rec-mode-select" class="styled-select">
+                    <option value="continuous">連續模式 (預設 - 流暢)</option>
+                    <option value="single">單句模式 (吵雜環境推薦 - 準確)</option>
+                </select>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">
+                    ※ 若覺得反應變慢或環境很吵，請切換至「單句模式」。
+                </p>
+            </div>
+            <button id="save-settings-btn" class="primary-btn">儲存設定</button>
+            <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
+                <h3 style="font-size: 0.95rem; color: #aaa; margin-bottom: 12px; font-weight: normal;">iPhone
+                    無法使用麥克風？
+                </h3>
+                <ol style="font-size: 0.85rem; color: #888; padding-left: 20px; line-height: 1.6; margin: 0;">
+                    <p class="step">1. 點擊網址列左側的 <strong class="highlight">圖示</strong> (通常顯示為 <strong>Aa</strong>
+                        /
+                        <strong>大小</strong> 或 <strong>電腦圖案</strong>)
                     </p>
-                </div>
-                <button id="save-settings-btn" class="primary-btn">儲存設定</button>
-                <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
-                    <h3 style="font-size: 0.95rem; color: #aaa; margin-bottom: 12px; font-weight: normal;">iPhone
-                        無法使用麥克風？
-                    </h3>
-                    <ol style="font-size: 0.85rem; color: #888; padding-left: 20px; line-height: 1.6; margin: 0;">
-                        <p class="step">1. 點擊網址列左側的 <strong class="highlight">圖示</strong> (通常顯示為 <strong>Aa</strong>
-                            /
-                            <strong>大小</strong> 或 <strong>電腦圖案</strong>)
-                        </p>
-                        <p class="step warning">※ 若使用 LINE/FB 開啟，請點選「使用 Safari 開啟」</p>
-                        <p class="step">2. 選擇 <strong class="highlight">「網站設定」</strong> (通常在選單下方或是「●●●」)</p>
-                        <p class="step">3. 將 <strong class="highlight">「麥克風」</strong> 改為 <strong
-                                class="highlight">「允許」</strong></p>
-                        <p class="step">4. 重新整理網頁</p>
-                    </ol>
+                    <p class="step warning">※ 若使用 LINE/FB 開啟，請點選「使用 Safari 開啟」</p>
+                    <p class="step">2. 選擇 <strong class="highlight">「網站設定」</strong> (通常在選單下方或是「●●●」)</p>
+                    <p class="step">3. 將 <strong class="highlight">「麥克風」</strong> 改為 <strong
+                            class="highlight">「允許」</strong></p>
+                    <p class="step">4. 重新整理網頁</p>
+                </ol>
 
-                    <h3 style="font-size: 0.95rem; color: #aaa; margin: 16px 0 12px; font-weight: normal;">Android
-                        (Chrome)
-                        無法使用？
-                    </h3>
-                    <ol style="font-size: 0.85rem; color: #888; padding-left: 20px; line-height: 1.6; margin: 0;">
-                        <li style="margin-bottom: 4px;">點擊網址列左側的 <strong>鎖頭圖示 (🔒)</strong></li>
-                        <li style="margin-bottom: 4px;">選擇 <strong>「權限」</strong> 或 <strong>「網站設定」</strong></li>
-                        <li style="margin-bottom: 4px;">開啟 <strong>「麥克風」</strong> 權限</li>
-                        <li>重新整理網頁</li>
-                    </ol>
-                </div>
+                <h3 style="font-size: 0.95rem; color: #aaa; margin: 16px 0 12px; font-weight: normal;">Android
+                    (Chrome)
+                    無法使用？
+                </h3>
+                <ol style="font-size: 0.85rem; color: #888; padding-left: 20px; line-height: 1.6; margin: 0;">
+                    <li style="margin-bottom: 4px;">點擊網址列左側的 <strong>鎖頭圖示 (🔒)</strong></li>
+                    <li style="margin-bottom: 4px;">選擇 <strong>「權限」</strong> 或 <strong>「網站設定」</strong></li>
+                    <li style="margin-bottom: 4px;">開啟 <strong>「麥克風」</strong> 權限</li>
+                    <li>重新整理網頁</li>
+                </ol>
             </div>
         </div>
+    </div>
 
-        <!-- Keyboard Input Modal -->
-        <div id="keyboard-modal" class="modal hidden">
-            <div class="modal-content" style="padding-top: 10px;">
-                <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
-                <button id="close-keyboard-btn"
-                    style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
-                <button id="close-keyboard-btn"
-                    style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
-            </div>
-            <!-- Reset Button Moved to Header -->
-
-            <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
-                請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
-            </p>
-
-            <input type="text" id="manual-input-field"
-                style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
-                placeholder="例如: 100 200">
-
-            <div style="display: flex; gap: 10px;">
-                <button id="next-input-btn" class="primary-btn"
-                    style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
-                    (加入)</button>
-                <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
-            </div>
+    <!-- Keyboard Input Modal -->
+    <div id="keyboard-modal" class="modal hidden">
+        <div class="modal-content" style="padding-top: 10px;">
+            <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
+            <button id="close-keyboard-btn" onclick="document.getElementById('keyboard-modal').classList.add('hidden')"
+                style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
         </div>
+        <!-- Reset Button Moved to Header -->
+
+        <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
+            請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
+        </p>
+
+        <input type="text" id="manual-input-field"
+            style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
+            placeholder="例如: 100 200">
+
+        <div style="display: flex; gap: 10px;">
+            <button id="next-input-btn" class="primary-btn"
+                style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
+                (加入)</button>
+            <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
+        </div>
+    </div>
     </div>
 
 
@@ -384,6 +389,7 @@
                 this.btnDelete = document.getElementById('btn-delete');
                 this.btnSummary = document.getElementById('btn-summary');
                 this.btnClear = document.getElementById('btn-clear-all');
+                this.keyboardBtn = document.getElementById('btn-keyboard'); // Added missing Ref
 
                 this.initSpeechRecognition();
                 if (this.micBtn) {
@@ -665,23 +671,80 @@
 
 
             initListeners() {
-                // Hard Reset Logic (Header Button)
-                const resetBtn = document.getElementById('header-reset-btn');
-                if (resetBtn) {
-                    resetBtn.addEventListener('click', () => {
-                        if (confirm('確定重置系統？\n(清除暫存並重新載入)')) {
-                            localStorage.clear();
-                            // Optional: Unregister Service Workers if any
-                            if ('serviceWorker' in navigator) {
-                                navigator.serviceWorker.getRegistrations().then(registrations => {
-                                    for (let registration of registrations) registration.unregister();
-                                });
+                try {
+                    // Define UI elements first to avoid ReferenceError
+                    const settingsModal = document.getElementById('settings-modal');
+                    const autoStopSelect = document.getElementById('auto-stop-select');
+                    const recModeSelect = document.getElementById('rec-mode-select');
+
+
+                    // Hard Reset Logic (Header Button)
+                    const resetBtn = document.getElementById('header-reset-btn');
+                    if (resetBtn) {
+                        resetBtn.addEventListener('click', () => {
+                            if (confirm('確定重置系統？\n(清除暫存並重新載入)')) {
+                                localStorage.clear();
+                                location.reload(true);
                             }
-                            location.reload(true);
-                        }
-                    });
+                        });
+                    }
+
+                    // Settings Button Logic
+                    if (this.settingsBtn) {
+                        this.settingsBtn.addEventListener('click', () => {
+                            settingsModal.classList.remove('hidden');
+                            autoStopSelect.value = this.autoStopMinutes;
+                            recModeSelect.value = this.recognitionMode;
+                        });
+                    }
+
+                    // Save Settings Logic
+                    const saveSettingsBtn = document.getElementById('save-settings-btn');
+                    if (saveSettingsBtn) {
+                        saveSettingsBtn.addEventListener('click', () => {
+                            const val = parseInt(autoStopSelect.value);
+                            this.autoStopMinutes = val;
+
+                            const newMode = recModeSelect.value;
+                            if (this.recognitionMode !== newMode) {
+                                this.recognitionMode = newMode;
+                                this.silenceThreshold = 400;
+                            }
+                            settingsModal.classList.add('hidden');
+                            this.showTranscript(`已儲存: ${val}分`);
+                        });
+                    }
+
+                    // Mic Button Logic
+                    if (this.micBtn) {
+                        this.micBtn.addEventListener('click', () => {
+                            if (navigator.vibrate) navigator.vibrate(30);
+                            if (this.isListening) {
+                                this.isListening = false;
+                                this.recognition.stop();
+                                this.updateUIState(false);
+                            } else {
+                                this.isListening = true;
+                                this.toggleWakeLock(true);
+                                this.statusIndicator.textContent = '啟動中...';
+                                try { this.recognition.start(); } catch (e) { }
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.error('InitListeners Error:', err);
+                    alert('按鈕初始化失敗: ' + err.message);
                 }
-                // Settings Button Logic
+
+                // Other buttons...
+                try {
+                    if (this.btnDelete) this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
+                    if (this.btnSummary) this.btnSummary.addEventListener('click', () => this.showSummary());
+                    if (this.btnClear) this.btnClear.addEventListener('click', () => {
+                        if (confirm('確定清空？')) this.clearAllEntries();
+                    });
+                    if (this.closeModalBtn) this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
+                } catch (e) { console.error('Secondary Btn Error', e); }
                 if (this.settingsBtn) {
                     const settingsModal = document.getElementById('settings-modal');
                     const saveSettingsBtn = document.getElementById('save-settings-btn');
@@ -767,24 +830,22 @@
                 });
 
                 this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
-                this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
-                this.summaryModal.addEventListener('click', (e) => {
-                    if (e.target === this.summaryModal) this.summaryModal.classList.add('hidden');
-                });
 
-                // Keyboard Modal Logic
+                // (Logic Merged Below)
+
+                // Keyboard Modal Logic (Consolidated)
                 const keyModal = document.getElementById('keyboard-modal');
-                const keyBtn = document.getElementById('btn-keyboard');
                 const closeKeyBtn = document.getElementById('close-keyboard-btn');
                 const inputField = document.getElementById('manual-input-field');
-                const confirmKeyBtn = document.getElementById('next-input-btn'); // Replaced ID
+                const confirmKeyBtn = document.getElementById('next-input-btn');
                 const finishKeyBtn = document.getElementById('finish-input-btn');
 
-                if (keyBtn) {
-                    keyBtn.addEventListener('click', () => {
+                if (this.keyboardBtn) {
+                    this.keyboardBtn.onclick = () => { // Direct bind
                         keyModal.classList.remove('hidden');
                         setTimeout(() => inputField.focus(), 100);
-                    });
+                        console.log('Open Keyboard Modal');
+                    };
                 }
 
                 const processManualInput = (keepOpen = false) => {
