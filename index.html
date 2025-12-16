@@ -888,13 +888,27 @@
                     // --- Batch Input Pre-processing (Quantifiers) ---
                     // Pattern: "3個100" or "三個100" -> "100 100 100"
                     // Logic: Capture Number (Digit/Chinese) + Quantifier + Number (Digit/Chinese)
-                    const quantifierRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)/g;
-                    cleanText = cleanText.replace(quantifierRegex, (match, countStr, valueStr) => {
+                    // Pattern 1: Prefix "3個100" -> "100 100 100"
+                    const prefixQuantifiereRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]\s*([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)/g;
+                    cleanText = cleanText.replace(prefixQuantifiereRegex, (match, countStr, valueStr) => {
                         const count = this.parseNumber(countStr);
                         const value = this.parseNumber(valueStr);
-
                         if (!isNaN(count) && !isNaN(value) && count > 0 && count <= 50) {
-                            // Return the expanded string (e.g. "100 100 100")
+                            return Array(count).fill(value).join(' ');
+                        }
+                        return match;
+                    });
+
+                    // Pattern 2: Suffix "100 5個" -> "100 100 100 100 100"
+                    // Useful for "misrecognized" order or natural "Item first" speaking style
+                    const suffixQuantifierRegex = /([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s+([0-9\.]+|[零一二兩三四五六七八九十百千萬]+)\s*[個顆只條張]/g;
+                    cleanText = cleanText.replace(suffixQuantifierRegex, (match, valueStr, countStr) => {
+                        const count = this.parseNumber(countStr);
+                        const value = this.parseNumber(valueStr);
+                        if (!isNaN(count) && !isNaN(value) && count > 0 && count <= 50) {
+                            // Debug log if we hit this fallback
+                            const debugBar = document.getElementById('debug-bar');
+                            if (debugBar) debugBar.textContent += ` | 捕捉倒裝: ${count}個${value}`;
                             return Array(count).fill(value).join(' ');
                         }
                         return match;
