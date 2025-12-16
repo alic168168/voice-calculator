@@ -206,17 +206,20 @@
             </div>
 
             <!-- Temporary Debug Bar -->
+            <!-- Persistent Debug Bar -->
             <div id="debug-bar" style="
                 margin-top: 10px;
-                padding: 5px;
-                background: #f0f0f0;
-                color: #555;
-                font-size: 0.8rem;
+                padding: 8px;
+                background: #333;
+                color: #0f0;
+                font-family: monospace;
+                font-size: 0.85rem;
                 text-align: center;
                 border-radius: 4px;
-                min-height: 20px;
+                min-height: 40px;
                 word-break: break-all;
-            "></div>
+                border: 1px solid #555;
+            ">等待啟動...</div>
         </div>
     </div>
 
@@ -434,7 +437,7 @@
                     this.recognition.onstart = () => {
                         console.log('Voice Service: Started');
                         const db = document.getElementById('debug-bar');
-                        if (db) { db.style.display = 'block'; db.textContent = '服務啟動...等待聲音'; }
+                        if (db) { db.textContent = '🟢 服務啟動 (Listening)...'; db.style.color = '#0f0'; }
 
                         if (this.isListening) {
                             this.updateUIState(true);
@@ -444,12 +447,22 @@
                     };
 
                     // Diagnostic Events
-                    this.recognition.onaudiostart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '偵測到音訊輸入 (Audio Start)'; };
-                    this.recognition.onsoundstart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '偵測到聲音 (Sound Start)'; };
-                    this.recognition.onspeechstart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '偵測到語音 (Speech Start)'; };
-                    this.recognition.onnomatch = (e) => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '無法辨識 (No Match)'; };
+                    this.recognition.onaudiostart = () => { if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '🎵 音訊輸入開始 (Audio Start)'; };
+                    this.recognition.onsoundstart = () => {
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.textContent = '🔊 偵測到聲音 (Sound Detected)'; db.style.color = '#fff'; }
+                    };
+                    this.recognition.onspeechstart = () => {
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.textContent = '🗣️ 偵測到語音 (Speech Start)'; db.style.color = 'yellow'; }
+                    };
+                    this.recognition.onnomatch = (e) => {
+                        if (document.getElementById('debug-bar')) document.getElementById('debug-bar').textContent = '❓ 無法辨識 (No Match)';
+                    };
 
                     this.recognition.onend = () => {
+                        const db = document.getElementById('debug-bar');
+                        if (db) { db.textContent = '🔴 服務停止 (Enter)'; db.style.color = '#aaa'; }
                         console.log('Voice Service: Ended');
                         // Vital: If we are supposed to be listening, restart immediately.
                         if (this.isListening) {
@@ -512,6 +525,20 @@
 
                     this.recognition.onerror = (event) => {
                         console.log(`Voice Service Error: ${event.error}`);
+                        const db = document.getElementById('debug-bar');
+
+                        // Show error clearly
+                        if (db) {
+                            // Translate common errors
+                            const errMap = {
+                                'no-speech': '沒聽到聲音 (No Speech)',
+                                'network': '網路錯誤 (Network)',
+                                'not-allowed': '沒權限 (Blocked)',
+                                'aborted': '已中止 (Aborted)'
+                            };
+                            db.textContent = `❌ 錯誤: ${errMap[event.error] || event.error}`;
+                            db.style.color = '#ef4444';
+                        }
 
                         // Network error is common on mobile if connection is unstable
                         if (event.error === 'network') {
@@ -521,8 +548,7 @@
                         }
 
                         if (event.error === 'no-speech') {
-                            // Just ignore momentary silence, but maybe show hint
-                            // this.statusIndicator.textContent = '聽不到聲音...'; 
+                            // Ignore, but let debug bar show it
                             return;
                         }
 
