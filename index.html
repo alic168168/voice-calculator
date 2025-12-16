@@ -323,23 +323,24 @@
             <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
             <button id="close-keyboard-btn" onclick="document.getElementById('keyboard-modal').classList.add('hidden')"
                 style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
+            <!-- Reset Button Moved to Header -->
+
+            <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
+                請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
+            </p>
+
+            <input type="text" id="manual-input-field"
+                style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
+                placeholder="例如: 100 200">
+
+            <div style="display: flex; gap: 10px;">
+                <button id="next-input-btn" class="primary-btn"
+                    style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
+                    (加入)</button>
+                <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
+            </div>
         </div>
-        <!-- Reset Button Moved to Header -->
-
-        <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
-            請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
-        </p>
-
-        <input type="text" id="manual-input-field"
-            style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
-            placeholder="例如: 100 200">
-
-        <div style="display: flex; gap: 10px;">
-            <button id="next-input-btn" class="primary-btn"
-                style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
-                (加入)</button>
-            <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
-        </div>
+    </div>
     </div>
     </div>
 
