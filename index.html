@@ -339,11 +339,10 @@
                     this.entries = [];
                     this.recognition = null;
                     this.isListening = false;
-                    this.isListening = false;
                     this.finalTranscript = '';
                     this.silenceTimer = null;
                     this.autoStopMinutes = 3; // Default 3 mins
-                    this.silenceThreshold = 800; // Default 800ms (tuned for balance)
+                    this.silenceThreshold = 300; // Snappy again (was 800)
                     this.recognitionMode = 'continuous'; // 'continuous' or 'single'
                     this.lastSpeechTime = Date.now();
                     this.inactivityCheckInterval = null;
@@ -566,13 +565,12 @@
                                     return;
                                 }
 
-                                // Force finalize logic (Mainly for Continuous Mode)
-                                if (this.recognitionMode === 'continuous') {
-                                    this.forceFinalizeTimer = setTimeout(() => {
-                                        console.log(`Force Finalizing: ${interimTranscript}`);
-                                        if (this.isListening) this.recognition.stop();
-                                    }, this.silenceThreshold);
-                                }
+                                // Force finalize logic (Universal - applies to both modes for speed)
+                                // We apply this even in Single Mode to override Chrome's slow native VAD
+                                this.forceFinalizeTimer = setTimeout(() => {
+                                    console.log(`Force Finalizing: ${interimTranscript}`);
+                                    if (this.isListening) this.recognition.stop();
+                                }, this.silenceThreshold);
                             }
                         };
 
