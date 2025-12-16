@@ -343,7 +343,7 @@
                     this.finalTranscript = '';
                     this.silenceTimer = null;
                     this.autoStopMinutes = 3; // Default 3 mins
-                    this.silenceThreshold = 2000; // Default 2s for Continuous (Safety net only)
+                    this.silenceThreshold = 400; // User Request: 0.4s for Continuous
                     this.recognitionMode = 'continuous'; // 'continuous' or 'single'
                     this.lastSpeechTime = Date.now();
                     this.inactivityCheckInterval = null;
@@ -574,12 +574,12 @@
                                         if (this.isListening) this.recognition.stop();
                                     }, 300);
                                 } else {
-                                    // Continuous Mode: Relaxed 2s cut-off (Only prevent stuck)
-                                    // We want to avoid restarting to prevent "blind spots"
+                                    // Continuous Mode: Aggressive 0.4s cut-off (User Request)
+                                    // "Not forcing cut-off feels worse" -> Reverting to aggressive stop
                                     this.forceFinalizeTimer = setTimeout(() => {
-                                        console.log(`Force Finalizing (Stuck): ${interimTranscript}`);
+                                        console.log(`Force Finalizing: ${interimTranscript}`);
                                         if (this.isListening) this.recognition.stop();
-                                    }, 2000);
+                                    }, this.silenceThreshold);
                                 }
                             }
                         };
@@ -691,8 +691,8 @@
                             const newMode = recModeSelect.value;
                             if (this.recognitionMode !== newMode) {
                                 this.recognitionMode = newMode;
-                                // Update threshold: Single=Aggressive(300), Continuous=Passive(2000)
-                                this.silenceThreshold = newMode === 'single' ? 300 : 2000;
+                                // Update threshold: Single=300, Continuous=400 (Aggressive)
+                                this.silenceThreshold = newMode === 'single' ? 300 : 400;
 
                                 // Restart if running
                                 if (this.isListening) {
