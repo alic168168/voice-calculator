@@ -325,43 +325,56 @@
                     (Chrome)
                     無法使用？
                 </h3>
-                <ol style="font-size: 0.85rem; color: #888; padding-left: 20px; line-height: 1.6; margin: 0;">
-                    <li style="margin-bottom: 4px;">點擊網址列左側的 <strong>鎖頭圖示 (🔒)</strong></li>
-                    <li style="margin-bottom: 4px;">選擇 <strong>「權限」</strong> 或 <strong>「網站設定」</strong></li>
-                    <li style="margin-bottom: 4px;">開啟 <strong>「麥克風」</strong> 權限</li>
-                    <li>重新整理網頁</li>
-                </ol>
+            </div>
+
+            <!-- Keyboard Input Modal -->
+            <div id="keyboard-modal" class="modal hidden">
+                <div class="modal-content" style="padding-top: 10px;">
+                    <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
+                    <button id="close-keyboard-btn"
+                        onclick="document.getElementById('keyboard-modal').classList.add('hidden')"
+                        style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
+                    <!-- Reset Button Moved to Header -->
+
+                    <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
+                        請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
+                    </p>
+
+                    <input type="text" id="manual-input-field"
+                        style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
+                        placeholder="例如: 100 200">
+
+                    <div style="display: flex; gap: 10px;">
+                        <button id="next-input-btn" class="primary-btn"
+                            style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
+                            (加入)</button>
+                        <button id="finish-input-btn" class="secondary-btn"
+                            style="flex: 1; border: 1px solid #555;">完成</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Keyboard Input Modal -->
-    <div id="keyboard-modal" class="modal hidden">
-        <div class="modal-content" style="padding-top: 10px;">
-            <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
-            <button id="close-keyboard-btn" onclick="document.getElementById('keyboard-modal').classList.add('hidden')"
-                style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
-            <!-- Reset Button Moved to Header -->
-
-            <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
-                請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
-            </p>
-
-            <input type="text" id="manual-input-field"
-                style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
-                placeholder="例如: 100 200">
-
-            <div style="display: flex; gap: 10px;">
-                <button id="next-input-btn" class="primary-btn"
-                    style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
-                    (加入)</button>
-                <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
-            </div>
-        </div>
+    <!-- Debug Console Overlay -->
+    <div id="debug-console" style="
+        display: block; 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 150px; 
+        background: rgba(0,0,0,0.85); 
+        color: #0f0; 
+        font-family: monospace; 
+        font-size: 12px; 
+        padding: 8px; 
+        overflow-y: auto; 
+        z-index: 9999; 
+        pointer-events: none;
+        border-top: 1px solid #333;">
+        <div>[System] Visual Console Ready...</div>
     </div>
-    </div>
-    </div>
-
 
 
     <script>
@@ -410,6 +423,7 @@
                 this.btnClear = document.getElementById('btn-clear-all');
                 this.keyboardBtn = document.getElementById('btn-keyboard'); // Added missing Ref
 
+                this.init(); // Call the new init method
                 this.initSpeechRecognition();
                 if (this.micBtn) {
                     this.initListeners();
@@ -419,6 +433,37 @@
                 }
                 this.render();
                 this.updateOperatorUI(); // Set initial active state and hint
+            }
+
+            init() {
+                // --- Visual Console Override ---
+                const consoleDiv = document.getElementById('debug-console');
+                if (consoleDiv) {
+                    const originalLog = console.log;
+                    const originalWarn = console.warn;
+                    const originalError = console.error;
+
+                    function appendLog(type, args) {
+                        const msg = args.map(arg => {
+                            try { return typeof arg === 'object' ? JSON.stringify(arg) : String(arg); }
+                            catch (e) { return String(arg); }
+                        }).join(' ');
+                        const line = document.createElement('div');
+                        line.style.color = type === 'error' ? '#ff5555' : type === 'warn' ? '#ffaa00' : '#00ff00';
+                        line.textContent = `[${type}] ` + msg;
+                        consoleDiv.appendChild(line);
+                        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    }
+
+                    console.log = function (...args) { appendLog('log', args); originalLog.apply(console, args); };
+                    console.warn = function (...args) { appendLog('warn', args); originalWarn.apply(console, args); };
+                    console.error = function (...args) { appendLog('error', args); originalError.apply(console, args); };
+
+                    console.log('App Initialized. Environment: ' + navigator.userAgent);
+                }
+
+                // Existing Init Logic (if any, otherwise this can be removed or left empty)
+                // const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; // This line was part of the snippet, but seems misplaced here.
             }
 
             initOperatorButtons() {
@@ -484,7 +529,7 @@
                         }, 500);
                     } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
                         setTimeout(() => {
-                            alert('⛔【麥克風受限注意】⛔\n\n您似乎正在使用「非安全連線 (HTTP)」開啟此網頁。\n\n手機瀏覽器通常會強制封鎖麥克風。\n請嘗試：\n1. 使用 localhost (本機)\n2. 設定 HTTPS Server\n3. 使用鍵盤輸入模式');
+                            alert('⛔【麥克風受限注意】⛔\n\n您似乎正在使用「非安全連線 (HTTP)」開啟此網頁。\n\n手機瀏覽器通常會強制封鎖麥克風。\n請務必使用 start_server.bat 啟動，\n並連線至 https:// 開頭的網址。');
                             this.statusIndicator.textContent = '連線不安全 (麥克風受限)';
                             this.statusIndicator.style.color = 'orange';
                         }, 500);
@@ -555,7 +600,7 @@
                                 console.error("Refresh Loop Detected");
                                 this.isListening = false;
                                 this.updateUIState(false);
-                                alert('⚠️ 麥克風頻繁斷線\n\n瀏覽器似乎阻擋了麥克風。請嘗試：\n1. 重新整理網頁\n2. 檢查網址列是否允許權限\n3. 改用 start_server.bat 啟動');
+                                alert('⚠️ 麥克風頻繁斷線\n\n瀏覽器似乎阻擋了麥克風。請確認：\n1. 是否使用 HTTPS 連線？\n2. 是否已點擊「繼續前往」接受憑證？');
                                 return;
                             }
 
@@ -620,9 +665,9 @@
                     };
 
                     this.recognition.onerror = (event) => {
-                        console.log(`Voice Service Error: ${event.error}`);
-                        const db = document.getElementById('debug-bar');
+                        console.error(`Mic Error Event: ${event.error}`, event); // Log EVERY error to Visual Console
 
+                        const db = document.getElementById('debug-bar');
                         // Show error clearly
                         if (db) {
                             // Translate common errors
@@ -653,7 +698,7 @@
                         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
                             this.isListening = false;
                             this.updateUIState(false);
-                            alert('⚠️ 無法存取麥克風\n\n系統將自動開啟「麥克風設定」教學，請依照步驟開啟權限。');
+                            alert('無法存取麥克風。請確認：\n1. 網址開頭是 https (重要!)\n2. 已允許瀏覽器使用麥克風\n3. 若看到「不安全」警告，請點選進階 -> 繼續前往');
                             const settingsModal = document.getElementById('settings-modal');
                             if (settingsModal) settingsModal.classList.remove('hidden');
                         } else {
@@ -758,13 +803,16 @@
                                 this.updateUIState(false);
                             } else {
                                 // START
+                                // START
                                 try {
                                     // Optimistic UI Update: IMMEDIATE RED
                                     this.statusIndicator.textContent = '啟動中...';
                                     this.isListening = true;
                                     this.updateUIState(true);
 
-                                    await this.toggleWakeLock(true);
+                                    // Fire-and-forget Wake Lock (No await, prevent hanging)
+                                    this.toggleWakeLock(true).catch(e => console.warn('WakeLock bg error', e));
+
                                     this.recognition.start();
                                 } catch (e) {
                                     console.error("Mic Start Error", e);
@@ -972,13 +1020,10 @@
             updateUIState(listening, customText) {
                 if (listening) {
                     this.micBtn.classList.add('listening');
-                    // FORCE animation inline using internal keyframes
-                    this.micBtn.style.animation = 'pulse-active 1.5s infinite';
                     this.statusIndicator.textContent = customText || '聆聽中...';
                     this.statusIndicator.classList.add('listening');
                 } else {
                     this.micBtn.classList.remove('listening');
-                    this.micBtn.style.animation = 'none'; // Clear animation
                     this.statusIndicator.textContent = '系統已更新 (準備就緒)';
                     setTimeout(() => {
                         this.updateUIState(false);
