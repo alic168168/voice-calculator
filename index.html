@@ -101,21 +101,19 @@
                 </button>
 
                 <!-- Keyboard Input -->
-                <button id="btn-keyboard" class="icon-btn op-contrast" aria-label="鍵盤輸入"
-                    onclick="document.getElementById('keyboard-modal').classList.remove('hidden')"
-                    style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                <button id="btn-keyboard" class="icon-btn" aria-label="手動輸入" onclick="openKeyboard()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
-                        <line x1="6" y1="8" x2="6" y2="8"></line>
-                        <line x1="10" y1="8" x2="10" y2="8"></line>
-                        <line x1="14" y1="8" x2="14" y2="8"></line>
-                        <line x1="18" y1="8" x2="18" y2="8"></line>
-                        <line x1="6" y1="12" x2="6" y2="12"></line>
-                        <line x1="10" y1="12" x2="10" y2="12"></line>
-                        <line x1="14" y1="12" x2="14" y2="12"></line>
-                        <line x1="18" y1="12" x2="18" y2="12"></line>
-                        <line x1="6" y1="16" x2="18" y2="16"></line>
+                        <path d="M6 8h.001"></path>
+                        <path d="M10 8h.001"></path>
+                        <path d="M14 8h.001"></path>
+                        <path d="M18 8h.001"></path>
+                        <path d="M6 12h.001"></path>
+                        <path d="M10 12h.001"></path>
+                        <path d="M14 12h.001"></path>
+                        <path d="M18 12h.001"></path>
+                        <path d="M7 16h10"></path>
                     </svg>
                 </button>
 
@@ -310,31 +308,32 @@
                 </h3>
             </div>
 
-            <!-- Keyboard Input Modal -->
-            <div id="keyboard-modal" class="modal hidden">
-                <div class="modal-content" style="padding-top: 10px;">
-                    <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
-                    <button id="close-keyboard-btn"
-                        onclick="document.getElementById('keyboard-modal').classList.add('hidden')"
-                        style="background: none; border: none; color: #aaa; font-size: 1.5rem;">&times;</button>
-                    <!-- Reset Button Moved to Header -->
+        </div>
+    </div>
 
-                    <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
-                        請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
-                    </p>
+    <!-- Keyboard Input Modal (Moved to Top Level) -->
+    <div id="keyboard-modal" class="modal hidden">
+        <div class="modal-content" style="padding-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 1.2rem;">鍵盤輸入</h2>
+                <button id="close-keyboard-btn"
+                    onclick="document.getElementById('keyboard-modal').classList.add('hidden')"
+                    style="background: none; border: none; color: #fff; font-size: 2rem; line-height: 1; padding: 0 10px;">&times;</button>
+            </div>
 
-                    <input type="text" id="manual-input-field"
-                        style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
-                        placeholder="例如: 100 200">
+            <p style="text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 8px;">
+                請點擊下方框框，使用您習慣的鍵盤輸入法 (可使用鍵盤上的語音輸入)：
+            </p>
 
-                    <div style="display: flex; gap: 10px;">
-                        <button id="next-input-btn" class="primary-btn"
-                            style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
-                            (加入)</button>
-                        <button id="finish-input-btn" class="secondary-btn"
-                            style="flex: 1; border: 1px solid #555;">完成</button>
-                    </div>
-                </div>
+            <input type="text" id="manual-input-field" inputmode="decimal"
+                style="width: 100%; font-size: 1.5rem; padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid #555; border-radius: 12px; color: white; margin-bottom: 20px;"
+                placeholder="例如: 100 200">
+
+            <div style="display: flex; gap: 10px;">
+                <button id="next-input-btn" class="primary-btn"
+                    style="flex: 2; background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: 1.1rem;">下一筆
+                    (加入)</button>
+                <button id="finish-input-btn" class="secondary-btn" style="flex: 1; border: 1px solid #555;">完成</button>
             </div>
         </div>
     </div>
@@ -344,6 +343,20 @@
 
 
     <script>
+        // Global helper to ensure Keyboard always opens
+        window.openKeyboard = function () {
+            const modal = document.getElementById('keyboard-modal');
+            const field = document.getElementById('manual-input-field');
+            if (modal) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    if (field) field.focus();
+                }, 100);
+            } else {
+                alert('系統錯誤：找不到鍵盤視窗');
+            }
+        };
+
         class VoiceCalculator {
             constructor() {
                 this.entries = [];
@@ -807,7 +820,7 @@
                     alert('初始化失敗: ' + err.message);
                 }
 
-                // Keyboard Modal Logic (Consolidated)
+                // Keyboard Modal Logic (Fixed)
                 const keyModal = document.getElementById('keyboard-modal');
                 const closeKeyBtn = document.getElementById('close-keyboard-btn');
                 const inputField = document.getElementById('manual-input-field');
@@ -815,15 +828,25 @@
                 const finishKeyBtn = document.getElementById('finish-input-btn');
 
                 if (this.keyboardBtn) {
-                    this.keyboardBtn.onclick = () => { // Direct bind
-                        keyModal.classList.remove('hidden');
-                        setTimeout(() => inputField.focus(), 100);
-                        console.log('Open Keyboard Modal');
-                    };
+                    // Remove old listeners by cloning
+                    const newKeyBtn = this.keyboardBtn.cloneNode(true);
+                    this.keyboardBtn.parentNode.replaceChild(newKeyBtn, this.keyboardBtn);
+                    this.keyboardBtn = newKeyBtn;
+
+                    this.keyboardBtn.addEventListener('click', () => {
+                        if (keyModal) {
+                            keyModal.classList.remove('hidden');
+                            setTimeout(() => {
+                                if (inputField) inputField.focus();
+                            }, 100);
+                        } else {
+                            alert('錯誤：找不到鍵盤視窗');
+                        }
+                    });
                 }
 
                 const processManualInput = (keepOpen = false) => {
-                    const text = inputField.value;
+                    const text = inputField ? inputField.value : '';
                     if (text) {
                         this.processSpeechInput(text);
                         inputField.value = '';
@@ -831,24 +854,28 @@
                     }
 
                     if (keepOpen) {
-                        inputField.focus();
+                        if (inputField) inputField.focus();
                     } else {
                         keyModal.classList.add('hidden');
                     }
                 };
 
                 if (closeKeyBtn) closeKeyBtn.addEventListener('click', () => keyModal.classList.add('hidden'));
-                keyModal.addEventListener('click', (e) => {
-                    if (e.target === keyModal) keyModal.classList.add('hidden');
-                });
+                if (keyModal) {
+                    keyModal.addEventListener('click', (e) => {
+                        if (e.target === keyModal) keyModal.classList.add('hidden');
+                    });
+                }
 
                 // Bindings
                 if (confirmKeyBtn) confirmKeyBtn.addEventListener('click', () => processManualInput(true)); // Next
                 if (finishKeyBtn) finishKeyBtn.addEventListener('click', () => processManualInput(false)); // Finish
 
-                inputField.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') processManualInput(true); // Enter = Next (Continuous)
-                });
+                if (inputField) {
+                    inputField.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') processManualInput(true); // Enter = Next (Continuous)
+                    });
+                }
             }
 
             initOperatorButtons() {
