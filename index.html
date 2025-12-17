@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>語音加總計算機</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20251217_fix4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         /* CRITICAL: Internal Animation Definition to Bypass CSS Cache */
@@ -239,24 +239,7 @@
 
             <!-- Temporary Debug Bar -->
             <!-- Persistent Debug Bar -->
-            <div id="debug-bar" style="
-                position: fixed;
-                display: none; /* Hidden by user request */
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                z-index: 9999;
-                padding: 12px;
-                background: rgba(0, 0, 0, 0.9);
-                color: #0f0;
-                font-family: monospace;
-                font-size: 14px;
-                text-align: center;
-                border-top: 1px solid #555;
-                font-weight: bold;
-                max-height: 15vh;
-                overflow-y: auto;
-            ">等待啟動... (診斷模式)</div>
+            <!-- Debug Bar Removed -->
         </div>
     </div>
 
@@ -357,24 +340,7 @@
     </div>
 
     <!-- Debug Console Overlay -->
-    <div id="debug-console" style="
-        display: block; 
-        position: fixed; 
-        bottom: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 150px; 
-        background: rgba(0,0,0,0.85); 
-        color: #0f0; 
-        font-family: monospace; 
-        font-size: 12px; 
-        padding: 8px; 
-        overflow-y: auto; 
-        z-index: 9999; 
-        pointer-events: none;
-        border-top: 1px solid #333;">
-        <div>[System] Visual Console Ready...</div>
-    </div>
+    <!-- Debug Console Removed -->
 
 
     <script>
@@ -436,34 +402,7 @@
             }
 
             init() {
-                // --- Visual Console Override ---
-                const consoleDiv = document.getElementById('debug-console');
-                if (consoleDiv) {
-                    const originalLog = console.log;
-                    const originalWarn = console.warn;
-                    const originalError = console.error;
-
-                    function appendLog(type, args) {
-                        const msg = args.map(arg => {
-                            try { return typeof arg === 'object' ? JSON.stringify(arg) : String(arg); }
-                            catch (e) { return String(arg); }
-                        }).join(' ');
-                        const line = document.createElement('div');
-                        line.style.color = type === 'error' ? '#ff5555' : type === 'warn' ? '#ffaa00' : '#00ff00';
-                        line.textContent = `[${type}] ` + msg;
-                        consoleDiv.appendChild(line);
-                        consoleDiv.scrollTop = consoleDiv.scrollHeight;
-                    }
-
-                    console.log = function (...args) { appendLog('log', args); originalLog.apply(console, args); };
-                    console.warn = function (...args) { appendLog('warn', args); originalWarn.apply(console, args); };
-                    console.error = function (...args) { appendLog('error', args); originalError.apply(console, args); };
-
-                    console.log('App Initialized. Environment: ' + navigator.userAgent);
-                }
-
-                // Existing Init Logic (if any, otherwise this can be removed or left empty)
-                // const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; // This line was part of the snippet, but seems misplaced here.
+                // Production Mode: Debug Console Removed
             }
 
             initOperatorButtons() {
@@ -590,28 +529,26 @@
                             clearTimeout(this.restartTimer);
 
                             // Loop Protection
+                            // Loop Protection REMOVED for stability
                             const now = Date.now();
                             if (!this.restartTimestamps) this.restartTimestamps = [];
                             this.restartTimestamps.push(now);
-                            // Keep only last 2 seconds
+                            // Keep stats but do not stop service
                             this.restartTimestamps = this.restartTimestamps.filter(t => now - t < 2000);
-
-                            if (this.restartTimestamps.length > 5) {
-                                console.error("Refresh Loop Detected");
-                                this.isListening = false;
-                                this.updateUIState(false);
-                                alert('⚠️ 麥克風頻繁斷線\n\n瀏覽器似乎阻擋了麥克風。請確認：\n1. 是否使用 HTTPS 連線？\n2. 是否已點擊「繼續前往」接受憑證？');
-                                return;
-                            }
 
                             this.restartTimer = setTimeout(() => {
                                 try {
-                                    if (this.isListening) this.recognition.start();
+                                    if (this.isListening) {
+                                        // Force UI sync just in case
+                                        this.updateUIState(true);
+                                        this.recognition.start();
+                                    }
                                 } catch (e) {
                                     console.error("Restart failed", e);
                                 }
                             }, 50);
                         } else {
+                            // Only turn off if explicitly stopped
                             this.updateUIState(false);
                         }
                     };
@@ -748,13 +685,7 @@
 
             initListeners() {
                 try {
-                    // Define UI elements first to avoid ReferenceError
-                    const settingsModal = document.getElementById('settings-modal');
-                    const autoStopSelect = document.getElementById('auto-stop-select');
-                    const recModeSelect = document.getElementById('rec-mode-select');
-
-
-                    // Hard Reset Logic (Header Button)
+                    // --- 1. Header & Settings Handlers ---
                     const resetBtn = document.getElementById('header-reset-btn');
                     if (resetBtn) {
                         resetBtn.addEventListener('click', () => {
@@ -765,18 +696,18 @@
                         });
                     }
 
-                    // Settings Button Logic
                     if (this.settingsBtn) {
+                        const settingsModal = document.getElementById('settings-modal');
+                        const saveSettingsBtn = document.getElementById('save-settings-btn');
+                        const autoStopSelect = document.getElementById('auto-stop-select');
+                        const recModeSelect = document.getElementById('rec-mode-select');
+
                         this.settingsBtn.addEventListener('click', () => {
                             settingsModal.classList.remove('hidden');
                             autoStopSelect.value = this.autoStopMinutes;
                             recModeSelect.value = this.recognitionMode;
                         });
-                    }
 
-                    // Save Settings Logic
-                    const saveSettingsBtn = document.getElementById('save-settings-btn');
-                    if (saveSettingsBtn) {
                         saveSettingsBtn.addEventListener('click', () => {
                             const val = parseInt(autoStopSelect.value);
                             this.autoStopMinutes = val;
@@ -785,152 +716,96 @@
                             if (this.recognitionMode !== newMode) {
                                 this.recognitionMode = newMode;
                                 this.silenceThreshold = 400;
+
+                                // Restart if running to apply new mode
+                                if (this.isListening) {
+                                    this.isListening = false;
+                                    this.recognition.abort();
+                                    setTimeout(() => this.micBtn.click(), 500);
+                                }
                             }
                             settingsModal.classList.add('hidden');
-                            this.showTranscript(`已儲存: ${val}分`);
+                            this.showTranscript(`已儲存設定`);
+                            if (this.isListening) this.resetInactivityTimer();
+                        });
+
+                        settingsModal.addEventListener('click', (e) => {
+                            if (e.target === settingsModal) settingsModal.classList.add('hidden');
                         });
                     }
 
-                    // Mic Button Logic
+                    // --- 2. Mic Button Handler (SINGLE SOURCE OF TRUTH) ---
                     if (this.micBtn) {
-                        this.micBtn.addEventListener('click', async () => {
+                        this.micBtn.addEventListener('click', () => {
                             if (navigator.vibrate) navigator.vibrate(30);
 
                             if (this.isListening) {
-                                // STOP
+                                // STOP REQUEST
                                 this.isListening = false;
                                 this.recognition.stop();
                                 this.updateUIState(false);
                             } else {
-                                // START
-                                // START
+                                // START REQUEST
+                                this.isListening = true;
+                                this.updateUIState(true); // Optimistic Update
+                                this.toggleWakeLock(true); // Screen ON
+
                                 try {
-                                    // Optimistic UI Update: IMMEDIATE RED
-                                    this.statusIndicator.textContent = '啟動中...';
-                                    this.isListening = true;
-                                    this.updateUIState(true);
-
-                                    // Fire-and-forget Wake Lock (No await, prevent hanging)
-                                    this.toggleWakeLock(true).catch(e => console.warn('WakeLock bg error', e));
-
                                     this.recognition.start();
                                 } catch (e) {
-                                    console.error("Mic Start Error", e);
-                                    this.isListening = false;
-                                    this.updateUIState(false);
-
+                                    console.error("Start failed", e);
                                     if (e.message && e.message.includes('already started')) {
+                                        // Benign race condition - ignore
+                                        console.log('Duplicate start ignored');
                                         this.isListening = true;
                                         this.updateUIState(true);
                                     } else {
-                                        // Show detailed error
-                                        alert('麥克風啟動失敗 (詳細): ' + (e.message || e));
+                                        // Real error
+                                        this.isListening = false;
+                                        this.updateUIState(false);
+                                        alert('啟動失敗: ' + e.message);
                                     }
                                 }
                             }
                         });
                     }
+
+                    // --- 3. Operational Buttons (Delete, Summary, Clear) ---
+                    if (this.btnDelete) {
+                        // Remove old listeners to be safe (though this is init)
+                        const newBtn = this.btnDelete.cloneNode(true);
+                        this.btnDelete.parentNode.replaceChild(newBtn, this.btnDelete);
+                        this.btnDelete = newBtn;
+                        this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
+                    }
+
+                    if (this.btnSummary) {
+                        this.btnSummary.addEventListener('click', () => this.showSummary());
+                    }
+
+                    if (this.btnClear) {
+                        this.btnClear.addEventListener('click', () => {
+                            if (this.entries.length > 0 && confirm('確定清空所有數字？')) {
+                                this.clearAllEntries();
+                            } else if (this.entries.length === 0) {
+                                this.showTranscript('無資料');
+                            }
+                        });
+                    }
+
+                    if (this.closeModalBtn) {
+                        this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
+                    }
+                    if (this.summaryModal) {
+                        this.summaryModal.addEventListener('click', (e) => {
+                            if (e.target === this.summaryModal) this.summaryModal.classList.add('hidden');
+                        });
+                    }
+
                 } catch (err) {
-                    console.error('InitListeners Error:', err);
-                    alert('按鈕初始化失敗: ' + err.message);
+                    console.error('InitListeners Fatal Error:', err);
+                    alert('初始化失敗: ' + err.message);
                 }
-
-                // Other buttons...
-                try {
-                    if (this.btnDelete) this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
-                    if (this.btnSummary) this.btnSummary.addEventListener('click', () => this.showSummary());
-                    if (this.btnClear) this.btnClear.addEventListener('click', () => {
-                        if (confirm('確定清空？')) this.clearAllEntries();
-                    });
-                    if (this.closeModalBtn) this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
-                } catch (e) { console.error('Secondary Btn Error', e); }
-                if (this.settingsBtn) {
-                    const settingsModal = document.getElementById('settings-modal');
-                    const saveSettingsBtn = document.getElementById('save-settings-btn');
-                    const autoStopSelect = document.getElementById('auto-stop-select');
-                    const recModeSelect = document.getElementById('rec-mode-select');
-
-                    this.settingsBtn.addEventListener('click', () => {
-                        settingsModal.classList.remove('hidden');
-                        autoStopSelect.value = this.autoStopMinutes;
-                        recModeSelect.value = this.recognitionMode;
-                    });
-
-                    saveSettingsBtn.addEventListener('click', () => {
-                        const val = parseInt(autoStopSelect.value);
-                        this.autoStopMinutes = val;
-
-                        const newMode = recModeSelect.value;
-                        if (this.recognitionMode !== newMode) {
-                            this.recognitionMode = newMode;
-                            // Update threshold: Universal 400
-                            this.silenceThreshold = 400;
-
-                            // Restart if running
-                            if (this.isListening) {
-                                this.isListening = false;
-                                this.recognition.abort();
-                                setTimeout(() => this.micBtn.click(), 500); // Re-trigger
-                            }
-                        }
-
-                        settingsModal.classList.add('hidden');
-                        this.showTranscript(`已儲存: ${val}分 / ${newMode === 'single' ? '單句' : '連續'}`);
-                        if (this.isListening) this.resetInactivityTimer();
-                    });
-
-                    settingsModal.addEventListener('click', (e) => {
-                        if (e.target === settingsModal) settingsModal.classList.add('hidden');
-                    });
-                }
-
-                this.micBtn.addEventListener('click', () => {
-                    if (navigator.vibrate) navigator.vibrate(30);
-
-                    if (this.isListening) {
-                        // User wants to STOP
-                        this.isListening = false;
-                        this.recognition.stop();
-                        this.updateUIState(false);
-                        if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
-                    } else {
-                        // User wants to START
-                        this.isListening = true;
-                        this.toggleWakeLock(true); // SCREEN ON
-                        this.statusIndicator.textContent = '啟動中...';
-                        try {
-                            this.recognition.abort();
-                        } catch (e) { }
-
-                        // Direct start (No timeout) for better mobile compatibility
-                        try {
-                            this.recognition.start();
-                        } catch (e) {
-                            console.error("Start failed", e);
-                            this.isListening = false;
-                            this.updateUIState(false);
-                            // Only alert if not already started
-                            if (e.message !== "Failed to execute 'start' on 'SpeechRecognition': recognition has already started.") {
-                                alert('啟動失敗，請重試 (或嘗試重整網頁)');
-                            }
-                        }
-                    }
-                });
-
-                this.btnDelete.addEventListener('click', () => this.deleteLastEntry());
-                this.btnSummary.addEventListener('click', () => this.showSummary());
-
-                this.btnClear.addEventListener('click', () => {
-                    if (this.entries.length > 0 && confirm('確定清空所有數字？')) {
-                        this.clearAllEntries();
-                    } else if (this.entries.length === 0) {
-                        this.showTranscript('無資料');
-                    }
-                });
-
-                this.closeModalBtn.addEventListener('click', () => this.summaryModal.classList.add('hidden'));
-
-                // (Logic Merged Below)
 
                 // Keyboard Modal Logic (Consolidated)
                 const keyModal = document.getElementById('keyboard-modal');
@@ -1024,14 +899,18 @@
                     this.statusIndicator.classList.add('listening');
                 } else {
                     this.micBtn.classList.remove('listening');
-                    this.statusIndicator.textContent = '系統已更新 (準備就緒)';
-                    setTimeout(() => {
-                        this.updateUIState(false);
-                        this.toggleWakeLock(false); // SCREEN OFF (Allow Sleep)
-                    }, 2000);
                     this.statusIndicator.classList.remove('listening');
                     this.hideTranscript();
-                    this.toggleWakeLock(false); // Immediate visual release
+                    this.toggleWakeLock(false);
+
+                    // Show "Ready" briefly, then reset to prompt
+                    if (this.statusIndicator.textContent !== '點擊麥克風') {
+                        this.statusIndicator.textContent = '系統已更新 (準備就緒)';
+                        if (this.uiResetTimer) clearTimeout(this.uiResetTimer);
+                        this.uiResetTimer = setTimeout(() => {
+                            this.statusIndicator.textContent = '點擊麥克風';
+                        }, 2000);
+                    }
                 }
             }
 
